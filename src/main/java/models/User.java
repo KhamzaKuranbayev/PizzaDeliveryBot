@@ -10,13 +10,32 @@ public class User {
     private String full_name;
     private String phone_number;
     private Address address;
+    private Language language;
 
-    public User(String LAT, String LANG, String full_name, String phone_number, Address address) {
+    public User(long chat_id, String LAT, String LANG, String full_name, String phone_number, Address address, Language language) {
+        this.chat_id = chat_id;
         this.LAT = LAT;
         this.LANG = LANG;
         this.full_name = full_name;
         this.phone_number = phone_number;
         this.address = address;
+        this.language = language;
+    }
+
+    public long getChat_id() {
+        return chat_id;
+    }
+
+    public void setChat_id(long chat_id) {
+        this.chat_id = chat_id;
+    }
+
+    public Language getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(Language language) {
+        this.language = language;
     }
 
     public Address getAddress() {
@@ -59,11 +78,4 @@ public class User {
         this.phone_number = phone_number;
     }
 
-    public long getChat_id() {
-        return chat_id;
-    }
-
-    public void setChat_id(long chat_id) {
-        this.chat_id = chat_id;
-    }
 }

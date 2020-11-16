@@ -1,6 +1,5 @@
 package pizza_manager;
 
-import com.sun.org.apache.xpath.internal.operations.Or;
 import models.Manager;
 import models.Order;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -27,14 +26,10 @@ public class ManagerBot extends TelegramLongPollingBot {
 
     }
 
-    // Zuhra
-    // Method bo'ladi, Manager listiga 3ta Manager qo'shish
-
     public void setManagers() {
         managers.add(new Manager("Jamshid", "Isroilov", "1234"));
         managers.add(new Manager("Elyorxo'ja", "Asadullayev", "4534"));
         managers.add(new Manager("Xondamir", "Alijonov", "6789"));
-
     }
 
 
