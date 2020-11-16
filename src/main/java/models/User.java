@@ -58,4 +58,12 @@ public class User {
     public void setPhone_number(String phone_number) {
         this.phone_number = phone_number;
     }
+
+    public long getChat_id() {
+        return chat_id;
+    }
+
+    public void setChat_id(long chat_id) {
+        this.chat_id = chat_id;
+    }
 }
