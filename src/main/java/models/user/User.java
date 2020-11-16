@@ -1,21 +1,16 @@
-package models;
+package models.user;
 
 public class User {
 
     private long chat_id;
 
-    private String LAT;
-    private String LANG;
-
     private String full_name;
     private String phone_number;
     private Address address;
-    private Language language;
+    private String language;
 
-    public User(long chat_id, String LAT, String LANG, String full_name, String phone_number, Address address, Language language) {
+    public User(long chat_id, String full_name, Address address, String phone_number, String language) {
         this.chat_id = chat_id;
-        this.LAT = LAT;
-        this.LANG = LANG;
         this.full_name = full_name;
         this.phone_number = phone_number;
         this.address = address;
@@ -30,11 +25,11 @@ public class User {
         this.chat_id = chat_id;
     }
 
-    public Language getLanguage() {
+    public String getLanguage() {
         return language;
     }
 
-    public void setLanguage(Language language) {
+    public void setLanguage(String language) {
         this.language = language;
     }
 
@@ -44,22 +39,6 @@ public class User {
 
     public void setAddress(Address address) {
         this.address = address;
-    }
-
-    public String getLAT() {
-        return LAT;
-    }
-
-    public void setLAT(String LAT) {
-        this.LAT = LAT;
-    }
-
-    public String getLANG() {
-        return LANG;
-    }
-
-    public void setLANG(String LANG) {
-        this.LANG = LANG;
     }
 
     public String getFull_name() {

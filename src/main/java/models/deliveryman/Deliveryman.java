@@ -1,14 +1,16 @@
-package models;
+package models.deliveryman;
 
-public class Manager {
+public class Deliveryman {
 
     private String firstname;
     private String lastname;
+    private String telegram_username;
     private String password;
 
-    public Manager(String firstname, String lastname, String password) {
+    public Deliveryman(String firstname, String lastname, String telegram_username, String password) {
         this.firstname = firstname;
         this.lastname = lastname;
+        this.telegram_username = telegram_username;
         this.password = password;
     }
 
@@ -26,6 +28,14 @@ public class Manager {
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
+    }
+
+    public String getTelegram_username() {
+        return telegram_username;
+    }
+
+    public void setTelegram_username(String telegram_username) {
+        this.telegram_username = telegram_username;
     }
 
     public String getPassword() {

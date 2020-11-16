@@ -1,7 +1,7 @@
 package pizza_manager;
 
-import models.Manager;
-import models.Order;
+import models.manager.Manager;
+import models.order.Order;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -15,7 +15,7 @@ public class ManagerBot extends TelegramLongPollingBot {
 
     public static List<Manager> managers = new ArrayList<>();
 
-    public static List<Order> orderList = new ArrayList<>();
+    public static long OrderID = 1;
 
     public static ConcurrentHashMap<Long, Order> orders = new ConcurrentHashMap<>();
 
@@ -26,12 +26,11 @@ public class ManagerBot extends TelegramLongPollingBot {
 
     }
 
-    public void setManagers() {
+    public static void setManagers() {
         managers.add(new Manager("Jamshid", "Isroilov", "1234"));
         managers.add(new Manager("Elyorxo'ja", "Asadullayev", "4534"));
         managers.add(new Manager("Xondamir", "Alijonov", "6789"));
     }
-
 
     @Override
     public String getBotUsername() {

@@ -1,13 +1,11 @@
-package models;
+package message;
 
 import pizza_user.UserBot;
 
-public class Text {
+public class UserText {
 
-    public static final String UZ = "Uzbek";
-    public static final String RU = "Русский";
-
-    private static StringBuilder result;
+    public static final String UZ = "\uD83C\uDDFA\uD83C\uDDFFUzbek";
+    public static final String RU = "\uD83C\uDDF7\uD83C\uDDFAРусский";
 
     public static String userStartBeforeRegText() {
 
