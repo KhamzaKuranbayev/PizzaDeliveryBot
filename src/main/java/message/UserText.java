@@ -94,4 +94,15 @@ public class UserText {
         return answer;
     }
 
+    public static String userMainMenuCardText() {
+        String answer = "";
+        switch (UserBot.LANGUAGE) {
+            case RU:
+            case UZ:
+                answer = "\uD83D\uDECD Buyurtma savatchasi";
+                break;
+        }
+        return answer;
+    }
+
 }

@@ -307,10 +307,15 @@ public class UserBot extends TelegramLongPollingBot {
         KeyboardRow keyboardRow1 = new KeyboardRow();
         keyboardRow1.add(new KeyboardButton(UserText.userMainMenuOrderText()));
         KeyboardRow keyboardRow2 = new KeyboardRow();
-        keyboardRow2.add(new KeyboardButton(UserText.userMainMenuInfoText()));
+        keyboardRow2.add(new KeyboardButton(UserText.userMainMenuCardText()));
+       KeyboardRow keyboardRow3 = new KeyboardRow();
+        keyboardRow3.add(new KeyboardButton(UserText.userMainMenuInfoText()));
+//       KeyboardRow keyboardRow3 = new KeyboardRow();
+//        keyboardRow2.add(new KeyboardButton(UserText.userMainMenuCardText()));
 
         keyboardRowList.add(keyboardRow1);
         keyboardRowList.add(keyboardRow2);
+        keyboardRowList.add(keyboardRow3);
 
         replyKeyboardMarkup.setKeyboard(keyboardRowList);
 
