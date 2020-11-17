@@ -25,3 +25,43 @@ public class Main {
 
     }
 }
+
+/*
+*              Menu:
+*  /pizza1 ==> price,
+*
+*  /pizza2  ==> price
+*
+*  /pizza3==> price
+*
+*  /pizza4==> price
+*
+*  /pizza5==> price
+*
+*  /pizza6==> price
+*
+*  /pizza7==> price
+*
+*  /pizza8==> price
+*
+*  /pizza9==> price
+*
+*
+* selected ==> pizza4
+*  image 
+* caption: name
+* Add to cart (button)
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+*
+* */

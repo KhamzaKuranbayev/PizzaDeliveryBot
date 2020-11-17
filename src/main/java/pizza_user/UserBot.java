@@ -76,8 +76,8 @@ public class UserBot extends TelegramLongPollingBot {
                     }
                     break;
                 case "\uD83D\uDECD Buyurtma berish":
-                        showProductList(sendMessage);
-                break;
+                    showProductList(sendMessage);
+                    break;
 
                 default:
                     if (onTimeUsername) {
@@ -117,7 +117,7 @@ public class UserBot extends TelegramLongPollingBot {
                         temp.clear();
                         afterRegister(sendMessage);
                         onTimePhoneNumber = false;
-                    } else if(!"".equals(PRODUCT_NAME)) {
+                    } else if (!"".equals(PRODUCT_NAME)) {
                         showProduct(sendMessage);
                     }
 
@@ -132,8 +132,8 @@ public class UserBot extends TelegramLongPollingBot {
 
     private String getProduct(Update update) {
         for (Product product : products) {
-            if(product != null) {
-                if(product.getPizza().toString().contains(update.getMessage().getText())) {
+            if (product != null) {
+                if (product.getPizza().toString().contains(update.getMessage().getText())) {
                     return product.getPizza().toString();
                 }
             }
@@ -142,7 +142,16 @@ public class UserBot extends TelegramLongPollingBot {
     }
 
     private void showProductList(SendMessage sendMessage) {
-
+        StringBuilder result = new StringBuilder();
+        for (Product product : products) {
+            result.append("/").append(product.getPizza()).append(":\n").append(product.getPizza().getPrice()).append(" UZS\n\n");
+        }
+        sendMessage.setText(result.toString());
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
 
     private void setAddress(Update update) {
