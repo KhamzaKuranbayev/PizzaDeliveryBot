@@ -33,6 +33,7 @@ public class UserBot extends TelegramLongPollingBot {
     public static boolean onTimeUsername = false;
     public static boolean onTimeAddress = false;
     public static boolean onTimePhoneNumber = false;
+    public static boolean onTimeBalance = false;
 
     public static List<Product> products = new ArrayList<>();
 
@@ -75,12 +76,24 @@ public class UserBot extends TelegramLongPollingBot {
                         onTimeAddress = true;
                     } else if (onTimeAddress) {
                         setAddress(update);
-                        sendMessage.setText(UserText.userPhoneNumberText());
+                        sendMessage.setText(UserText.userBalanceText());
                         try {
                             ReplyKeyboardRemove keyboardMarkup = new ReplyKeyboardRemove();
                             sendMessage.setReplyMarkup(keyboardMarkup);
                             execute(sendMessage);
                             onTimeAddress = false;
+                            onTimeBalance = true;
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (onTimeBalance) {
+                        temp.put("balance", update.getMessage().getText());
+                        sendMessage.setText(UserText.userPhoneNumberText());
+                        try {
+                            ReplyKeyboardRemove keyboardMarkup = new ReplyKeyboardRemove();
+                            sendMessage.setReplyMarkup(keyboardMarkup);
+                            execute(sendMessage);
+                            onTimeBalance = false;
                             onTimePhoneNumber = true;
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
@@ -89,7 +102,7 @@ public class UserBot extends TelegramLongPollingBot {
                         temp.put("phone_number", update.getMessage().getText());
 
                         Address address = Address.valueOf(temp.get("address"));
-                        users.add(new User(update.getMessage().getChatId(), temp.get("username"), address, temp.get("phone_number"), LANGUAGE));
+                        users.add(new User(update.getMessage().getChatId(), temp.get("username"), temp.get("phone_number"), address, LANGUAGE, Double.parseDouble(temp.get("balance"))));
                         temp.clear();
                         afterRegister(sendMessage);
                     }

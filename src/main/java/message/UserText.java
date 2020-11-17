@@ -35,6 +35,17 @@ public class UserText {
         return answer;
     }
 
+    public static String userBalanceText() {
+        String answer = "";
+        switch (UserBot.LANGUAGE) {
+            case RU:
+            case UZ:
+                answer = "Hisobingizga qancha pul kiritasiz?";
+                break;
+        }
+        return answer;
+    }
+
     public static String userAddressText() {
         String answer = "";
         switch (UserBot.LANGUAGE) {
