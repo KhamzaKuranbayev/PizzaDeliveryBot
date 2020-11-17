@@ -8,10 +8,8 @@ import models.user.User;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -20,11 +18,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class UserBot extends TelegramLongPollingBot {
 
-    private static final String TOKEN = "1318778812:AAHTjaTbisv6aWWnLPGTEe5Lts9DCkP-Px8";
+    private static final String TOKEN = "1318778812:AAHz-TE8v-KWsq74WaS8NdN04_qXI0uATlk";
 
     public static final String START = "/start";
 
@@ -40,13 +37,16 @@ public class UserBot extends TelegramLongPollingBot {
     public static boolean onTimeAddress = false;
     public static boolean onTimePhoneNumber = false;
     public static boolean onTimeBalance = false;
+    public static boolean onTimeCountOrderProduct = false;
 
     public static List<Product> products = new ArrayList<>();
 
-    public static HashMap<String, String> order_card = new HashMap<>();
+    public static int index = 0;
 
+    public static HashMap<Integer, Map<String, String>> order_card = new HashMap<>();
 
-    public static Map<String, String> temp = new HashMap<>();
+    public static Map<String, String> tempUserRegData = new HashMap<>();
+    public static Map<String, String> tempProductData = new HashMap<>();
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -81,10 +81,29 @@ public class UserBot extends TelegramLongPollingBot {
                 case "\uD83C\uDF55 Pizza tanlash":
                     showProductList(sendMessage);
                     break;
-
+                case "\uD83D\uDECD Buyurtma savatchasi":
+                    sendMessage.setText("Operatsiyani tanlang");
+                    try {
+                        orderCartButtons(sendMessage);
+                        execute(sendMessage);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case "\uD83E\uDDFA Xarid savatchasiga qo'shish":
+                    order_card.put(index++, tempProductData);
+                    sendMessage.setText("✅ Pizza buyurtma savatchasiga joylandi!\n\n");
+                    try {
+                        execute(sendMessage);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    showProductList(sendMessage);
+                    break;
                 default:
+
                     if (onTimeUsername) {
-                        temp.put("username", update.getMessage().getText());
+                        tempUserRegData.put("username", update.getMessage().getText());
                         selectUserAddress(sendMessage);
                         onTimeUsername = false;
                         onTimeAddress = true;
@@ -101,7 +120,7 @@ public class UserBot extends TelegramLongPollingBot {
                             e.printStackTrace();
                         }
                     } else if (onTimeBalance) {
-                        temp.put("balance", update.getMessage().getText());
+                        tempUserRegData.put("balance", update.getMessage().getText());
                         sendMessage.setText(UserText.userPhoneNumberText());
                         try {
                             ReplyKeyboardRemove keyboardMarkup = new ReplyKeyboardRemove();
@@ -113,15 +132,25 @@ public class UserBot extends TelegramLongPollingBot {
                             e.printStackTrace();
                         }
                     } else if (onTimePhoneNumber) {
-                        temp.put("phone_number", update.getMessage().getText());
+                        tempUserRegData.put("phone_number", update.getMessage().getText());
 
-                        Address address = Address.valueOf(temp.get("address"));
-                        users.add(new User(update.getMessage().getChatId(), temp.get("username"), temp.get("phone_number"), address, LANGUAGE, Double.parseDouble(temp.get("balance"))));
-                        temp.clear();
+                        Address address = Address.valueOf(tempUserRegData.get("address"));
+                        users.add(new User(update.getMessage().getChatId(), tempUserRegData.get("username"), tempUserRegData.get("phone_number"), address, LANGUAGE, Double.parseDouble(tempUserRegData.get("balance"))));
+                        tempUserRegData.clear();
                         afterRegister(sendMessage);
                         onTimePhoneNumber = false;
                     } else if (!"".equals(PRODUCT_NAME)) {
                         showProduct(sendMessage);
+                    } else if (onTimeCountOrderProduct) {
+                        tempProductData.put("product_count", update.getMessage().getText());
+                        sendMessage.setText("Buyurtmani savatchaga qo'shing");
+                        try {
+                            setToCardButtons(sendMessage);
+                            execute(sendMessage);
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                        onTimeCountOrderProduct = false;
                     }
 
             }
@@ -138,12 +167,15 @@ public class UserBot extends TelegramLongPollingBot {
                     answer += "Tarkibi: " + product.getPizza().getIng() + "\n";
                     answer += "Narxi: " + product.getPizza().getPrice() + " UZS\n\n";
                     answer += "Nechta buyurtma qilasiz? (MAXIMUM: " + product.getAmount() + " ta)";
+                    tempProductData.put("product_id", product.getProductId());
+                    break;
                 }
             }
         }
         sendMessage.setText(answer);
         try {
             execute(sendMessage);
+            onTimeCountOrderProduct = true;
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -158,8 +190,6 @@ public class UserBot extends TelegramLongPollingBot {
     }
 
     private String getProduct(Update update) {
-
-
         for (Product product : products) {
             if (product != null) {
                 if (update.getMessage().getText().contains(product.getPizza().toString())) {
@@ -179,26 +209,44 @@ public class UserBot extends TelegramLongPollingBot {
         try {
             ReplyKeyboardRemove keyboardMarkup = new ReplyKeyboardRemove();
             sendMessage.setReplyMarkup(keyboardMarkup);
+            setBackToMenuButton(sendMessage);
             execute(sendMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
     }
 
+    private void setBackToMenuButton(SendMessage sendMessage) {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setResizeKeyboard(true);
+
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+
+        KeyboardRow keyboardRow = new KeyboardRow();
+        KeyboardButton keyboardButton = new KeyboardButton(UserText.backText());
+
+        keyboardRow.add(keyboardButton);
+        keyboardRows.add(keyboardRow);
+
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+        sendMessage.setReplyMarkup(replyKeyboardMarkup);
+    }
+
     private void setAddress(Update update) {
         Address address = Address.valueOf(update.getMessage().getText());
         switch (address) {
             case CHILONZOR:
-                temp.put("address", Address.CHILONZOR.toString());
+                tempUserRegData.put("address", Address.CHILONZOR.toString());
                 break;
             case YUNUSOBOD:
-                temp.put("address", Address.YUNUSOBOD.toString());
+                tempUserRegData.put("address", Address.YUNUSOBOD.toString());
                 break;
             case SERGELI:
-                temp.put("address", Address.SERGELI.toString());
+                tempUserRegData.put("address", Address.SERGELI.toString());
                 break;
             case MIROBOD:
-                temp.put("address", Address.MIROBOD.toString());
+                tempUserRegData.put("address", Address.MIROBOD.toString());
                 break;
         }
     }
@@ -234,28 +282,6 @@ public class UserBot extends TelegramLongPollingBot {
 
         keyboardRows.add(keyboardRow1);
         keyboardRows.add(keyboardRow2);
-        replyKeyboardMarkup.setKeyboard(keyboardRows);
-        sendMessage.setReplyMarkup(replyKeyboardMarkup);
-    }
-    private void setToCardBackButtons(SendMessage sendMessage) {
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-        replyKeyboardMarkup.setSelective(true);
-        replyKeyboardMarkup.setResizeKeyboard(true);
-
-        List<KeyboardRow> keyboardRows = new ArrayList<>();
-
-        KeyboardRow keyboardRow1 = new KeyboardRow();
-        KeyboardButton keyboardButton1 = new KeyboardButton("\uD83D\uDCE9Xarid savatchasiga qo'shish");
-
-
-        KeyboardRow keyboardRow2 = new KeyboardRow();
-        KeyboardButton keyboardButton2 = new KeyboardButton("♻️Orqaga qaytish");
-
-        keyboardRow1.add(keyboardButton1);
-        keyboardRows.add(keyboardRow1);
-        keyboardRow2.add(keyboardButton2);
-        keyboardRows.add(keyboardRow2);
-
         replyKeyboardMarkup.setKeyboard(keyboardRows);
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
     }
@@ -305,13 +331,11 @@ public class UserBot extends TelegramLongPollingBot {
         List<KeyboardRow> keyboardRowList = new ArrayList<KeyboardRow>();
 
         KeyboardRow keyboardRow1 = new KeyboardRow();
-        keyboardRow1.add(new KeyboardButton(UserText.userMainMenuOrderText()));
+        keyboardRow1.add(new KeyboardButton(UserText.userMainMenuChoosePizzaText()));
         KeyboardRow keyboardRow2 = new KeyboardRow();
         keyboardRow2.add(new KeyboardButton(UserText.userMainMenuCardText()));
-       KeyboardRow keyboardRow3 = new KeyboardRow();
+        KeyboardRow keyboardRow3 = new KeyboardRow();
         keyboardRow3.add(new KeyboardButton(UserText.userMainMenuInfoText()));
-//       KeyboardRow keyboardRow3 = new KeyboardRow();
-//        keyboardRow2.add(new KeyboardButton(UserText.userMainMenuCardText()));
 
         keyboardRowList.add(keyboardRow1);
         keyboardRowList.add(keyboardRow2);
@@ -322,25 +346,42 @@ public class UserBot extends TelegramLongPollingBot {
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
     }
 
-
-    public void inCart(SendMessage sendMessage) {
+    public void orderCartButtons(SendMessage sendMessage) {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setSelective(true);
         replyKeyboardMarkup.setResizeKeyboard(true);
-        List<KeyboardRow> keyboardRowList = new ArrayList();
+        List<KeyboardRow> keyboardRowList = new ArrayList<>();
         KeyboardRow keyboardRow1 = new KeyboardRow();
-        keyboardRow1.add(new KeyboardButton("\uD83D\uDCDD Buyurtma berish"));
+        keyboardRow1.add(new KeyboardButton(UserText.sendOrderText()));
         KeyboardRow keyboardRow2 = new KeyboardRow();
-        keyboardRow2.add(new KeyboardButton("\uD83D\uDEAB Buyurtmani bekor qilish"));
+        keyboardRow2.add(new KeyboardButton(UserText.cancelOrderText()));
         KeyboardRow keyboardRow3 = new KeyboardRow();
-        keyboardRow3.add(new KeyboardButton("✅ Keraklisini tanlash"));
-        KeyboardRow keyboardRow4 = new KeyboardRow();
-        keyboardRow4.add(new KeyboardButton("◀️ Orqaga qaytish"));
+
         keyboardRowList.add(keyboardRow1);
         keyboardRowList.add(keyboardRow2);
         keyboardRowList.add(keyboardRow3);
-        keyboardRowList.add(keyboardRow4);
         replyKeyboardMarkup.setKeyboard(keyboardRowList);
+        sendMessage.setReplyMarkup(replyKeyboardMarkup);
+    }
+
+    private void setToCardButtons(SendMessage sendMessage) {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setResizeKeyboard(true);
+
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+
+        KeyboardRow keyboardRow1 = new KeyboardRow();
+        KeyboardButton keyboardButton1 = new KeyboardButton(UserText.addToCartText());
+        KeyboardRow keyboardRow2 = new KeyboardRow();
+        KeyboardButton keyboardButton2 = new KeyboardButton(UserText.backText());
+
+        keyboardRow1.add(keyboardButton1);
+        keyboardRows.add(keyboardRow1);
+        keyboardRow2.add(keyboardButton2);
+        keyboardRows.add(keyboardRow2);
+
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
     }
 

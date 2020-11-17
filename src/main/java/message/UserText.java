@@ -12,9 +12,7 @@ public class UserText {
 
 
     public static String userStartBeforeRegText() {
-
         return "Assalomu aleykum! Добро пожаловать в виртуальный помощник службы Uzbek Pizza Delivery \uD83C\uDF55";
-
     }
 
     public static String userStartAfterRegText() {
@@ -27,6 +25,20 @@ public class UserText {
         }
         return answer;
     }
+
+    public static String backText() {
+        String answer = "";
+        switch (UserBot.LANGUAGE) {
+            case RU:
+            case UZ:
+                answer = "◀️ Orqaga qaytish";
+                break;
+        }
+        return answer;
+    }
+
+
+    //////// User Registration /////////
 
     public static String userNameText() {
         String answer = "";
@@ -72,12 +84,27 @@ public class UserText {
         return answer;
     }
 
-    public static String userMainMenuOrderText() {
+    ///////////////////////////////////
+
+    ////////  Main Menu ///////////////
+
+    public static String userMainMenuChoosePizzaText() {
         String answer = "";
         switch (UserBot.LANGUAGE) {
             case RU:
             case UZ:
                 answer = "\uD83C\uDF55 Pizza tanlash";
+                break;
+        }
+        return answer;
+    }
+
+    public static String userMainMenuCardText() {
+        String answer = "";
+        switch (UserBot.LANGUAGE) {
+            case RU:
+            case UZ:
+                answer = "\uD83D\uDECD Buyurtma savatchasi";
                 break;
         }
         return answer;
@@ -94,15 +121,55 @@ public class UserText {
         return answer;
     }
 
-    public static String userMainMenuCardText() {
+    ///////////////////////
+
+    //////////  Order Card /////////////////
+
+    public static String sendOrderText() {
         String answer = "";
         switch (UserBot.LANGUAGE) {
             case RU:
             case UZ:
-                answer = "\uD83D\uDECD Buyurtma savatchasi";
+                answer = "\uD83D\uDCDD Buyurtma berish";
                 break;
         }
         return answer;
     }
+
+    public static String cancelOrderText() {
+        String answer = "";
+        switch (UserBot.LANGUAGE) {
+            case RU:
+            case UZ:
+                answer = "\uD83D\uDEAB Buyurtmani bekor qilish";
+                break;
+        }
+        return answer;
+    }
+
+    public static String selectNeedText() {
+        String answer = "";
+        switch (UserBot.LANGUAGE) {
+            case RU:
+            case UZ:
+                answer = "✅ Keraklisini tanlash";
+                break;
+        }
+        return answer;
+    }
+
+    public static String addToCartText() {
+        String answer = "";
+        switch (UserBot.LANGUAGE) {
+            case RU:
+            case UZ:
+                answer = "\uD83E\uDDFA Xarid savatchasiga qo'shish";
+                break;
+        }
+        return answer;
+    }
+
+    /////////////////////////////////////////
+
 
 }
