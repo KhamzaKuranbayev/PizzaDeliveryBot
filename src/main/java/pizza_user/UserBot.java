@@ -8,8 +8,10 @@ import models.user.User;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -235,6 +237,28 @@ public class UserBot extends TelegramLongPollingBot {
         replyKeyboardMarkup.setKeyboard(keyboardRows);
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
     }
+    private void setToCardBackButtons(SendMessage sendMessage) {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setResizeKeyboard(true);
+
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+
+        KeyboardRow keyboardRow1 = new KeyboardRow();
+        KeyboardButton keyboardButton1 = new KeyboardButton("\uD83D\uDCE9Xarid savatchasiga qo'shish");
+
+
+        KeyboardRow keyboardRow2 = new KeyboardRow();
+        KeyboardButton keyboardButton2 = new KeyboardButton("♻️Orqaga qaytish");
+
+        keyboardRow1.add(keyboardButton1);
+        keyboardRows.add(keyboardRow1);
+        keyboardRow2.add(keyboardButton2);
+        keyboardRows.add(keyboardRow2);
+
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+        sendMessage.setReplyMarkup(replyKeyboardMarkup);
+    }
 
     public void afterRegister(SendMessage sendMessage) {
         sendMessage.setText(UserText.userStartAfterRegText());
@@ -292,6 +316,7 @@ public class UserBot extends TelegramLongPollingBot {
 
         sendMessage.setReplyMarkup(replyKeyboardMarkup);
     }
+
 
     public boolean checkUser(long chat_id) {
 
