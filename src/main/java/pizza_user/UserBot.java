@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class UserBot extends TelegramLongPollingBot {
 
@@ -31,22 +32,20 @@ public class UserBot extends TelegramLongPollingBot {
 
     public static List<User> users = new ArrayList<>();
 
-    public static User onlineUser = null;
-
-    public static boolean onTimeUsername = false;
-    public static boolean onTimeAddress = false;
-    public static boolean onTimePhoneNumber = false;
-    public static boolean onTimeBalance = false;
-    public static boolean onTimeCountOrderProduct = false;
+    public static ConcurrentHashMap<Long, Boolean> onTimeUsername = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Long, Boolean> onTimeAddress = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Long, Boolean> onTimePhoneNumber = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Long, Boolean> onTimeBalance = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Long, Boolean> onTimeCountOrderProduct = new ConcurrentHashMap<>();
 
     public static List<Product> products = new ArrayList<>();
 
     public static int index = 0;
 
-    public static HashMap<Integer, Map<String, String>> order_card = new HashMap<>();
+    public static ConcurrentHashMap<Integer, Map<String, String>> order_card = new ConcurrentHashMap<>();
 
-    public static Map<String, String> tempUserRegData = new HashMap<>();
-    public static Map<String, String> tempProductData = new HashMap<>();
+    public static ConcurrentHashMap<String, String> tempUserRegData = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, String> tempProductData = new ConcurrentHashMap<>();
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -72,7 +71,7 @@ public class UserBot extends TelegramLongPollingBot {
                     try {
                         ReplyKeyboardRemove keyboardMarkup = new ReplyKeyboardRemove();
                         sendMessage.setReplyMarkup(keyboardMarkup);
-                        onTimeUsername = true;
+                        onTimeUsername.put(update.getMessage().getChatId(), true);
                         execute(sendMessage);
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
@@ -111,46 +110,46 @@ public class UserBot extends TelegramLongPollingBot {
                     break;
                 default:
 
-                    if (onTimeUsername) {
+                    if (onTimeUsername.get(update.getMessage().getChatId())) {
                         tempUserRegData.put("username", update.getMessage().getText());
                         selectUserAddress(sendMessage);
-                        onTimeUsername = false;
-                        onTimeAddress = true;
-                    } else if (onTimeAddress) {
+                        onTimeUsername.replace(update.getMessage().getChatId(), false);
+                        onTimeAddress.put(update.getMessage().getChatId(), true);
+                    } else if (onTimeAddress.get(update.getMessage().getChatId())) {
                         setAddress(update);
                         sendMessage.setText(UserText.userBalanceText());
                         try {
                             ReplyKeyboardRemove keyboardMarkup = new ReplyKeyboardRemove();
                             sendMessage.setReplyMarkup(keyboardMarkup);
                             execute(sendMessage);
-                            onTimeAddress = false;
-                            onTimeBalance = true;
+                            onTimeAddress.replace(update.getMessage().getChatId(), false);
+                            onTimeBalance.put(update.getMessage().getChatId(), true);
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
                         }
-                    } else if (onTimeBalance) {
+                    } else if (onTimeBalance.get(update.getMessage().getChatId())) {
                         tempUserRegData.put("balance", update.getMessage().getText());
                         sendMessage.setText(UserText.userPhoneNumberText());
                         try {
                             ReplyKeyboardRemove keyboardMarkup = new ReplyKeyboardRemove();
                             sendMessage.setReplyMarkup(keyboardMarkup);
                             execute(sendMessage);
-                            onTimeBalance = false;
-                            onTimePhoneNumber = true;
+                            onTimeBalance.replace(update.getMessage().getChatId(), false);
+                            onTimePhoneNumber.put(update.getMessage().getChatId(), true);
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
                         }
-                    } else if (onTimePhoneNumber) {
+                    } else if (onTimePhoneNumber.get(update.getMessage().getChatId())) {
                         tempUserRegData.put("phone_number", update.getMessage().getText());
 
                         Address address = Address.valueOf(tempUserRegData.get("address"));
                         users.add(new User(update.getMessage().getChatId(), tempUserRegData.get("username"), tempUserRegData.get("phone_number"), address, LANGUAGE, Double.parseDouble(tempUserRegData.get("balance"))));
                         tempUserRegData.clear();
                         afterRegister(sendMessage);
-                        onTimePhoneNumber = false;
+                        onTimePhoneNumber.replace(update.getMessage().getChatId(), false);
                     } else if (!"".equals(PRODUCT_NAME)) {
                         showProduct(sendMessage);
-                    } else if (onTimeCountOrderProduct) {
+                    } else if (onTimeCountOrderProduct.get(update.getMessage().getChatId())) {
                         tempProductData.put("product_count", update.getMessage().getText());
                         sendMessage.setText("Buyurtmani savatchaga qo'shing");
                         try {
@@ -159,7 +158,7 @@ public class UserBot extends TelegramLongPollingBot {
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
                         }
-                        onTimeCountOrderProduct = false;
+                        onTimeCountOrderProduct.replace(update.getMessage().getChatId(), false);
                     }
 
             }
@@ -184,7 +183,7 @@ public class UserBot extends TelegramLongPollingBot {
         sendMessage.setText(answer);
         try {
             execute(sendMessage);
-            onTimeCountOrderProduct = true;
+            onTimeCountOrderProduct.put(Long.valueOf(sendMessage.getChatId()), true);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -399,7 +398,6 @@ public class UserBot extends TelegramLongPollingBot {
         for (User user : users) {
             if (user != null) {
                 if (user.getChat_id() == chat_id) {
-                    onlineUser = user;
                     return true;
                 }
             }
