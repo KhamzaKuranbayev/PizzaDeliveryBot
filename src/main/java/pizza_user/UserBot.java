@@ -100,6 +100,15 @@ public class UserBot extends TelegramLongPollingBot {
                     }
                     showProductList(sendMessage);
                     break;
+                case "◀️ Orqaga qaytish":
+                    sendMessage.setText("Bosh Menyu qaytdi♻️");
+                    try {
+                        setMainMenuButtons(sendMessage);
+                        execute(sendMessage);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    break;
                 default:
 
                     if (onTimeUsername) {
@@ -356,7 +365,7 @@ public class UserBot extends TelegramLongPollingBot {
         KeyboardRow keyboardRow2 = new KeyboardRow();
         keyboardRow2.add(new KeyboardButton(UserText.cancelOrderText()));
         KeyboardRow keyboardRow3 = new KeyboardRow();
-
+        keyboardRow3.add(new KeyboardButton(UserText.backText()));
         keyboardRowList.add(keyboardRow1);
         keyboardRowList.add(keyboardRow2);
         keyboardRowList.add(keyboardRow3);
