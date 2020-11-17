@@ -26,6 +26,8 @@ public class UserBot extends TelegramLongPollingBot {
 
     public static String LANGUAGE;
 
+
+
     public static List<User> users = new ArrayList<>();
 
     public static User onlineUser = null;
@@ -66,6 +68,10 @@ public class UserBot extends TelegramLongPollingBot {
                         e.printStackTrace();
                     }
                     break;
+                case "\uD83D\uDECD Buyurtma berish":
+                        showProductList(sendMessage);
+                break;
+
 
 
                 default:
@@ -105,10 +111,15 @@ public class UserBot extends TelegramLongPollingBot {
                         users.add(new User(update.getMessage().getChatId(), temp.get("username"), temp.get("phone_number"), address, LANGUAGE, Double.parseDouble(temp.get("balance"))));
                         temp.clear();
                         afterRegister(sendMessage);
+                        onTimePhoneNumber = false;
                     }
 
             }
         }
+
+    }
+
+    private void showProductList(SendMessage sendMessage) {
 
     }
 
@@ -191,8 +202,8 @@ public class UserBot extends TelegramLongPollingBot {
         replyKeyboardMarkup.setSelective(true);
         replyKeyboardMarkup.setResizeKeyboard(true);
         List<KeyboardRow> keyboardRows = new ArrayList<>();
-        KeyboardButton buttonUz = new KeyboardButton("\uD83C\uDDFA\uD83C\uDDFFUzbek");
-        KeyboardButton buttonRu = new KeyboardButton("\uD83C\uDDF7\uD83C\uDDFAРусский");
+        KeyboardButton buttonUz = new KeyboardButton(UserText.UZ);
+        KeyboardButton buttonRu = new KeyboardButton(UserText.RU);
         KeyboardRow keyboardRow = new KeyboardRow();
         keyboardRow.add(buttonUz);
         keyboardRow.add(buttonRu);

@@ -7,6 +7,8 @@ public class UserText {
     public static final String UZ = "\uD83C\uDDFA\uD83C\uDDFFUzbek";
     public static final String RU = "\uD83C\uDDF7\uD83C\uDDFAРусский";
 
+    public static String create_order = "\uD83D\uDECD Buyurtma berish";
+
     public static String userStartBeforeRegText() {
 
         return "Assalomu aleykum! Добро пожаловать в виртуальный помощник службы Uzbek Pizza Delivery \uD83C\uDF55";
@@ -89,7 +91,5 @@ public class UserText {
         }
         return answer;
     }
-
-
 
 }
