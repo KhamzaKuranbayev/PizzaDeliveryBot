@@ -76,7 +76,7 @@ public class UserBot extends TelegramLongPollingBot {
                         e.printStackTrace();
                     }
                     break;
-                case "\uD83D\uDECD Buyurtma berish":
+                case "\uD83C\uDF55 Pizza tanlash":
                     showProductList(sendMessage);
                     break;
 
@@ -175,6 +175,8 @@ public class UserBot extends TelegramLongPollingBot {
         }
         sendMessage.setText(result.toString());
         try {
+            ReplyKeyboardRemove keyboardMarkup = new ReplyKeyboardRemove();
+            sendMessage.setReplyMarkup(keyboardMarkup);
             execute(sendMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();

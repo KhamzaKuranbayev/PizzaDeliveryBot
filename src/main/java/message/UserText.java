@@ -8,7 +8,8 @@ public class UserText {
     public static final String UZ = "\uD83C\uDDFA\uD83C\uDDFFUzbek";
     public static final String RU = "\uD83C\uDDF7\uD83C\uDDFAРусский";
 
-    public static String create_order = "\uD83D\uDECD Buyurtma berish";
+    public static String create_order = "\uD83C\uDF55 Pizza tanlash";
+
 
     public static String userStartBeforeRegText() {
 
@@ -76,7 +77,7 @@ public class UserText {
         switch (UserBot.LANGUAGE) {
             case RU:
             case UZ:
-                answer = "\uD83D\uDECD Buyurtma berish";
+                answer = "\uD83C\uDF55 Pizza tanlash";
                 break;
         }
         return answer;
