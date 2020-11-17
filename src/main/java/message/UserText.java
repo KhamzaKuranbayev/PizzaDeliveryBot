@@ -1,6 +1,7 @@
 package message;
 
-import pizza_user.UserBot;
+import pizza_user.*;
+
 
 public class UserText {
 
