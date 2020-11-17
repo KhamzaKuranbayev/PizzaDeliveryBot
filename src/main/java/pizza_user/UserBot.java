@@ -8,16 +8,16 @@ import models.user.User;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class UserBot extends TelegramLongPollingBot {
@@ -39,10 +39,6 @@ public class UserBot extends TelegramLongPollingBot {
     public static ConcurrentHashMap<Long, Boolean> onTimeCountOrderProduct = new ConcurrentHashMap<>();
 
     public static List<Product> products = new ArrayList<>();
-
-    public static int index = 0;
-
-    public static ConcurrentHashMap<Integer, Map<String, String>> order_card = new ConcurrentHashMap<>();
 
     public static ConcurrentHashMap<String, String> tempUserRegData = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<String, String> tempProductData = new ConcurrentHashMap<>();
@@ -81,7 +77,9 @@ public class UserBot extends TelegramLongPollingBot {
                     showProductList(sendMessage);
                     break;
                 case "\uD83D\uDECD Buyurtma savatchasi":
-                    sendMessage.setText("Operatsiyani tanlang");
+
+                    showOrderCart(sendMessage);
+
                     try {
                         orderCartButtons(sendMessage);
                         execute(sendMessage);
@@ -90,7 +88,29 @@ public class UserBot extends TelegramLongPollingBot {
                     }
                     break;
                 case "\uD83E\uDDFA Xarid savatchasiga qo'shish":
-                    order_card.put(index++, tempProductData);
+
+                    File file = new File("src/main/resources/" + update.getMessage().getChatId().toString() + ".txt");
+                    if (!file.exists()) {
+                        try {
+                            file.createNewFile();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    try {
+                        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, true));
+
+                        for (Map.Entry<String, String> entry : tempProductData.entrySet()) {
+                            bufferedWriter.write(entry.getValue() + " ");
+                        }
+                        bufferedWriter.newLine();
+                        bufferedWriter.flush();
+                        tempProductData.clear();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                     sendMessage.setText("✅ Pizza buyurtma savatchasiga joylandi!\n\n");
                     try {
                         execute(sendMessage);
@@ -150,7 +170,9 @@ public class UserBot extends TelegramLongPollingBot {
                     } else if (!"".equals(PRODUCT_NAME)) {
                         showProduct(sendMessage);
                     } else if (onTimeCountOrderProduct.get(update.getMessage().getChatId())) {
+
                         tempProductData.put("product_count", update.getMessage().getText());
+
                         sendMessage.setText("Buyurtmani savatchaga qo'shing");
                         try {
                             setToCardButtons(sendMessage);
@@ -166,6 +188,79 @@ public class UserBot extends TelegramLongPollingBot {
 
     }
 
+    private void showOrderCart(SendMessage sendMessage) {
+
+        File file = new File("src/main/resources/" + sendMessage.getChatId() + ".txt");
+
+        if (file.exists()) {
+            try {
+                StringBuilder answer = new StringBuilder();
+
+                InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+                List<List<InlineKeyboardButton>> rowList = new ArrayList<List<InlineKeyboardButton>>();
+
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    String[] data = line.split(" ");
+
+                    String productName = "Nomi: " + data[2];
+                    String productCount = "Soni: " + data[0];
+                    String productPrice = "Narxi: " + data[1];
+
+                    answer.append(productName);
+                    answer.append(" || ");
+                    answer.append(productPrice);
+                    answer.append(" || ");
+                    answer.append(productCount);
+                    answer.append("\n\n");
+
+                    InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
+                    inlineKeyboardButton1.setText("❌ Remove");
+                    inlineKeyboardButton1.setCallbackData(productName);
+                    List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<InlineKeyboardButton>();
+                    keyboardButtonsRow.add(inlineKeyboardButton1);
+
+                    rowList.add(keyboardButtonsRow);
+                }
+
+                inlineKeyboardMarkup.setKeyboard(rowList);
+                sendMessage.setText("").setReplyMarkup(inlineKeyboardMarkup);
+                sendMessage.setText(String.valueOf(answer));
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+    }
+
+    private void addInlineButton(String productName) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+    }
+
+    public static InlineKeyboardMarkup inlineButtonRemove(InlineKeyboardMarkup inlineKeyboardMarkup) {
+
+        InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
+
+        inlineKeyboardButton1.setText("❌ Remove");
+        inlineKeyboardButton1.setCallbackData("dollar");
+
+        List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<InlineKeyboardButton>();
+
+        keyboardButtonsRow.add(inlineKeyboardButton1);
+
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<List<InlineKeyboardButton>>();
+        rowList.add(keyboardButtonsRow);
+
+        inlineKeyboardMarkup.setKeyboard(rowList);
+
+        return inlineKeyboardMarkup;
+    }
+
     private void showProduct(SendMessage sendMessage) {
         String answer = "";
         for (Product product : products) {
@@ -175,7 +270,8 @@ public class UserBot extends TelegramLongPollingBot {
                     answer += "Tarkibi: " + product.getPizza().getIng() + "\n";
                     answer += "Narxi: " + product.getPizza().getPrice() + " UZS\n\n";
                     answer += "Nechta buyurtma qilasiz? (MAXIMUM: " + product.getAmount() + " ta)";
-                    tempProductData.put("product_id", product.getProductId());
+                    tempProductData.put("product_name", product.getPizza().toString());
+                    tempProductData.put("product_price", String.valueOf(product.getPizza().getPrice()));
                     break;
                 }
             }
