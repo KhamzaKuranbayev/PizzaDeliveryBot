@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class UserBot extends TelegramLongPollingBot {
 
@@ -26,7 +27,7 @@ public class UserBot extends TelegramLongPollingBot {
 
     public static String LANGUAGE;
 
-
+    public static String PRODUCT_NAME;
 
     public static List<User> users = new ArrayList<>();
 
@@ -39,6 +40,9 @@ public class UserBot extends TelegramLongPollingBot {
 
     public static List<Product> products = new ArrayList<>();
 
+    public static HashMap<String, String> order_card = new HashMap<>();
+
+
     public static Map<String, String> temp = new HashMap<>();
 
     @Override
@@ -47,6 +51,9 @@ public class UserBot extends TelegramLongPollingBot {
         SendMessage sendMessage = new SendMessage().setChatId(chat_id);
 
         if (update.hasMessage()) {
+
+            PRODUCT_NAME = getProduct(update);
+
             switch (update.getMessage().getText()) {
                 case START:
                     if (checkUser(update.getMessage().getChatId())) {
@@ -71,8 +78,6 @@ public class UserBot extends TelegramLongPollingBot {
                 case "\uD83D\uDECD Buyurtma berish":
                         showProductList(sendMessage);
                 break;
-
-
 
                 default:
                     if (onTimeUsername) {
@@ -112,11 +117,28 @@ public class UserBot extends TelegramLongPollingBot {
                         temp.clear();
                         afterRegister(sendMessage);
                         onTimePhoneNumber = false;
+                    } else if(!"".equals(PRODUCT_NAME)) {
+                        showProduct(sendMessage);
                     }
 
             }
         }
 
+    }
+
+    private void showProduct(SendMessage sendMessage) {
+
+    }
+
+    private String getProduct(Update update) {
+        for (Product product : products) {
+            if(product != null) {
+                if(product.getPizza().toString().contains(update.getMessage().getText())) {
+                    return product.getPizza().toString();
+                }
+            }
+        }
+        return "";
     }
 
     private void showProductList(SendMessage sendMessage) {
