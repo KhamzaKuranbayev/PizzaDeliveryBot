@@ -318,6 +318,27 @@ public class UserBot extends TelegramLongPollingBot {
     }
 
 
+    public void inCart(SendMessage sendMessage) {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        List<KeyboardRow> keyboardRowList = new ArrayList();
+        KeyboardRow keyboardRow1 = new KeyboardRow();
+        keyboardRow1.add(new KeyboardButton("\uD83D\uDCDD Buyurtma berish"));
+        KeyboardRow keyboardRow2 = new KeyboardRow();
+        keyboardRow2.add(new KeyboardButton("\uD83D\uDEAB Buyurtmani bekor qilish"));
+        KeyboardRow keyboardRow3 = new KeyboardRow();
+        keyboardRow3.add(new KeyboardButton("✅ Keraklisini tanlash"));
+        KeyboardRow keyboardRow4 = new KeyboardRow();
+        keyboardRow4.add(new KeyboardButton("◀️ Orqaga qaytish"));
+        keyboardRowList.add(keyboardRow1);
+        keyboardRowList.add(keyboardRow2);
+        keyboardRowList.add(keyboardRow3);
+        keyboardRowList.add(keyboardRow4);
+        replyKeyboardMarkup.setKeyboard(keyboardRowList);
+        sendMessage.setReplyMarkup(replyKeyboardMarkup);
+    }
+
     public boolean checkUser(long chat_id) {
 
         for (User user : users) {
