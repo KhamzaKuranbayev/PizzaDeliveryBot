@@ -1,6 +1,7 @@
 package pizza_user;
 
 import message.UserText;
+import models.order.Pizza;
 import models.order.Product;
 import models.user.Address;
 import models.user.User;
@@ -127,13 +128,39 @@ public class UserBot extends TelegramLongPollingBot {
     }
 
     private void showProduct(SendMessage sendMessage) {
+        String answer = "";
+        for (Product product : products) {
+            if (product != null) {
+                if (product.getPizza().toString().equals(PRODUCT_NAME)) {
+                    answer = "Nomi: " + PRODUCT_NAME + "\n";
+                    answer += "Tarkibi: " + product.getPizza().getIng() + "\n";
+                    answer += "Narxi: " + product.getPizza().getPrice() + " UZS\n\n";
+                    answer += "Nechta buyurtma qilasiz? (MAXIMUM: " + product.getAmount() + " ta)";
+                }
+            }
+        }
+        sendMessage.setText(answer);
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
 
+    public static void addProductsToList() {
+        products.add(new Product("1", 50, Pizza.Capricciosa_Pizza));
+        products.add(new Product("2", 50, Pizza.Hawalian_Pizza));
+        products.add(new Product("3", 50, Pizza.Margherita_Pizza));
+        products.add(new Product("4", 50, Pizza.Marinara_Pizza));
+        products.add(new Product("5", 50, Pizza.Mexican_Pizza));
     }
 
     private String getProduct(Update update) {
+
+
         for (Product product : products) {
             if (product != null) {
-                if (product.getPizza().toString().contains(update.getMessage().getText())) {
+                if (update.getMessage().getText().contains(product.getPizza().toString())) {
                     return product.getPizza().toString();
                 }
             }

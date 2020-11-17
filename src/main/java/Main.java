@@ -11,6 +11,7 @@ public class Main {
 
         ManagerBot.setManagers();
         DeliverymanBot.setDeliveryman();
+        UserBot.addProductsToList();
 
         TelegramBotsApi botsApi = new TelegramBotsApi();
 
