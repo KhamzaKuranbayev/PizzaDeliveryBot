@@ -185,24 +185,23 @@ public class UserBot extends TelegramLongPollingBot {
         ManagerBot managerBot = new ManagerBot();
 
         try {
-            managerBot.execute(setInlineButtonNewOrder(216179264, sendMessage.getChatId(), "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi "));
-            managerBot.execute(setInlineButtonNewOrder(1326662257, sendMessage.getChatId(), "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
-            managerBot.execute(setInlineButtonNewOrder(805244933, sendMessage.getChatId(), "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
-            managerBot.execute(setInlineButtonNewOrder(479241658, sendMessage.getChatId(), "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
+            managerBot.execute(setInlineButtonNewOrder(1326662257, "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
+            managerBot.execute(setInlineButtonNewOrder(805244933, "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
+            managerBot.execute(setInlineButtonNewOrder(479241658, "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
+            managerBot.execute(setInlineButtonNewOrder(216179264, "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi "));
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
 
-
     }
 
-    private SendMessage setInlineButtonNewOrder(long managerChatID, String userChatId, String text) {
+    private SendMessage setInlineButtonNewOrder(long managerChatID, String text) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
         InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
 
         inlineKeyboardButton1.setText("Buyurtmani Ko'rish");
-        inlineKeyboardButton1.setCallbackData("receiveOrderBtn" + ManagerBot.OrderID);
+        inlineKeyboardButton1.setCallbackData("receiveOrderBtn" + ManagerBot.orderListIndex);
 
         List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
 
@@ -229,7 +228,13 @@ public class UserBot extends TelegramLongPollingBot {
                 String productId = data[1];
                 String productName = data[3];
                 double productCount = Double.parseDouble(data[0]);
-                productList.add(new Product(productId, productCount, Pizza.valueOf(productName)));
+
+                Product product = new Product();
+                product.setProductId(productId);
+                product.setPizza(Pizza.valueOf(productName));
+                product.setUser_amount(productCount);
+
+                productList.add(product);
             }
 
         } catch (IOException e) {
@@ -555,5 +560,58 @@ public class UserBot extends TelegramLongPollingBot {
     public String getBotToken() {
         return TOKEN;
     }
+
+    /*
+    *       Manager kirdi
+    *
+    *           My Orders bosdi
+    *
+    *           Pizza tayyorlash uchun buyurtmani tanlang
+    *          --------------------------------------------
+    *           Order ID    Name
+    *               1.      Pizza1   Status: Received
+    *               2.      Pizza2   Status: Received
+    *               3.      Pizza3   Status: Received
+    *               4.      Pizza4   Status: Received
+    *
+    *               2
+    *           Pizza2 tayyorlash uchun jo'natildi
+    *
+    *           My Orders
+    *
+    *           Pizza tayyorlash uchun buyurtmani tanlang
+     *          --------------------------------------------
+     *           Order ID    Name
+     *               1.      Pizza1   Status: Received
+     *               2.      Pizza2   Status: Process
+     *               3.      Pizza3   Status: Received
+     *               4.      Pizza4   Status: Received
+    *
+    *           My Orders
+    *
+    *
+    * */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 

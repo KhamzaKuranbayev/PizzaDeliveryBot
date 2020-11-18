@@ -7,6 +7,9 @@ public class Product {
     private Pizza pizza;
     private double user_amount; // user kiritgan soni
 
+    public Product() {
+    }
+
     public Product(String productId, double amount, Pizza pizza) {
         this.productId = productId;
         this.amount = amount;

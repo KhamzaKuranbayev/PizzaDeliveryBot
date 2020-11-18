@@ -8,10 +8,8 @@ public class Order {
     public long orderId;
     public List<Product> products;
     private LocalDateTime date; // buyurtma jo'natilgan sana va vaqti
-
     private String user_chat_id;
     private String manager_chat_id;
-
     private Status status;
 
     public Order(long orderId, List<Product> products,

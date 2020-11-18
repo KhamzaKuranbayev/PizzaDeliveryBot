@@ -3,18 +3,25 @@ package pizza_manager;
 import message.DeliverymanText;
 import models.manager.Manager;
 import models.order.Order;
+import models.order.Product;
+import models.order.Status;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pizza_user.UserBot;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.StrictMath.toIntExact;
@@ -32,6 +39,7 @@ public class ManagerBot extends TelegramLongPollingBot {
 
     private static ConcurrentHashMap<Long, Boolean> onTimeUsername = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<Long, Boolean> onTimePassword = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<Long, Boolean> onTimeMainMenu = new ConcurrentHashMap<>();
 
     private static ConcurrentHashMap<String, String> temp = new ConcurrentHashMap<>();
 
@@ -77,15 +85,25 @@ public class ManagerBot extends TelegramLongPollingBot {
                                 onTimePassword.replace(Long.valueOf(sendMessage.getChatId()), false);
                             }
 
+                            List<Long> orderHashMapIndexes = new ArrayList<>();
+
+                            orders.forEach((index, order) -> {
+                                if (order.getStatus() == Status.NEW) {
+                                    orderHashMapIndexes.add(index);
+                                }
+                            });
+
+                            for (Long orderHashMapIndex : orderHashMapIndexes) {
+                                if (orderHashMapIndex != null) {
+                                    try {
+                                        execute(setInlineButtonNewOrder(chat_id, "test", orderHashMapIndex));
+                                    } catch (TelegramApiException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
                         } else {
                             printPassword(sendMessage);
-                        }
-                    } else {
-                        sendMessage.setText("1*-qor");
-                        try {
-                            execute(sendMessage);
-                        } catch (TelegramApiException e) {
-                            e.printStackTrace();
                         }
                     }
             }
@@ -96,23 +114,73 @@ public class ManagerBot extends TelegramLongPollingBot {
             long chat_id = update.getCallbackQuery().getMessage().getChatId();
 
             if (call_data.contains("receiveOrderBtn")) {
-                long orderId = Long.parseLong(call_data.substring(call_data.indexOf("n") + 1));
+                long index = Long.parseLong(call_data.substring(call_data.indexOf("n") + 1));
 
-                EditMessageText new_message = new EditMessageText()
-                        .setChatId(chat_id)
-                        .setMessageId(toIntExact(message_id))
-                        .setText(orderId + " buyurtma");
-                try {
-                    execute(new_message);
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
+                Order order = orders.get(index - 1);
+                if (order.getStatus() != Status.RECEIVED) {
+                    order.setStatus(Status.RECEIVED);
+                    order.setManager_chat_id(String.valueOf(chat_id));
+                    String userChatID = order.getUser_chat_id();
+                    orders.replace(index, order);
+
+                    UserBot userBot = new UserBot();
+                    SendMessage sendMessageToUser = new SendMessage().setChatId(userChatID).setText(Status.RECEIVED.getUz());
+                    EditMessageText sendMessageToManager = new EditMessageText()
+                            .setChatId(chat_id)
+                            .setMessageId(toIntExact(message_id))
+                            .setText(String.valueOf(order.getOrderId()));
+                    try {
+                        userBot.execute(sendMessageToUser);
+                        execute(sendMessageToManager);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    EditMessageText sendMessageToManager = new EditMessageText()
+                            .setChatId(chat_id)
+                            .setMessageId(toIntExact(message_id))
+                            .setText("Ushbu buyurtma allaqachon qabul qilingan.");
+
+                    try {
+                        execute(sendMessageToManager);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
                 }
+
             }
 
         }
 
     }
 
+    private SendMessage setInlineButtonNewOrder(String managerChatID, String text, Long orderListIndex) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+        InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
+
+        inlineKeyboardButton1.setText("Buyurtmani Ko'rish");
+        inlineKeyboardButton1.setCallbackData("receiveOrderBtn" + orderListIndex);
+
+        List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
+
+        keyboardButtonsRow.add(inlineKeyboardButton1);
+
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(keyboardButtonsRow);
+
+        inlineKeyboardMarkup.setKeyboard(rowList);
+
+        return new SendMessage().setChatId(managerChatID).setText(text).setReplyMarkup(inlineKeyboardMarkup);
+    }
+
+    public static void clearTheFile(File file) throws IOException {
+        FileWriter fwOb = new FileWriter(file, false);
+        PrintWriter pwOb = new PrintWriter(fwOb, false);
+        pwOb.flush();
+        pwOb.close();
+        fwOb.close();
+    }
 
     private void printLogin(SendMessage sendMessage) {
         sendMessage.setText(DeliverymanText.login);
