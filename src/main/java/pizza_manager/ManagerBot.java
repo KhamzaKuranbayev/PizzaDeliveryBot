@@ -5,13 +5,19 @@ import models.manager.Manager;
 import models.order.Order;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pizza_user.UserBot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static java.lang.StrictMath.toIntExact;
 
 public class ManagerBot extends TelegramLongPollingBot {
 
@@ -31,16 +37,23 @@ public class ManagerBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        String chat_id = String.valueOf(update.getMessage().getChatId());
-        SendMessage sendMessage = new SendMessage().setChatId(chat_id);
 
         if (update.hasMessage()) {
+            String chat_id = String.valueOf(update.getMessage().getChatId());
+            SendMessage sendMessage = new SendMessage().setChatId(chat_id);
+
             switch (update.getMessage().getText()) {
                 case UserBot.START:
                     printLogin(sendMessage);
                     break;
-
-
+                case "/orderSlash1":
+                    sendMessage.setText("1*-qor");
+                    try {
+                        execute(sendMessage);
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    break;
 
                 default:
                     if (onTimeUsername.get(Long.valueOf(sendMessage.getChatId()))) {
@@ -67,11 +80,39 @@ public class ManagerBot extends TelegramLongPollingBot {
                         } else {
                             printPassword(sendMessage);
                         }
+                    } else {
+                        sendMessage.setText("1*-qor");
+                        try {
+                            execute(sendMessage);
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
                     }
             }
+        } else if (update.hasCallbackQuery()) {
+
+            String call_data = update.getCallbackQuery().getData();
+            long message_id = update.getCallbackQuery().getMessage().getMessageId();
+            long chat_id = update.getCallbackQuery().getMessage().getChatId();
+
+            if (call_data.contains("receiveOrderBtn")) {
+                long orderId = Long.parseLong(call_data.substring(call_data.indexOf("n") + 1));
+
+                EditMessageText new_message = new EditMessageText()
+                        .setChatId(chat_id)
+                        .setMessageId(toIntExact(message_id))
+                        .setText(orderId + " buyurtma");
+                try {
+                    execute(new_message);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+            }
+
         }
 
     }
+
 
     private void printLogin(SendMessage sendMessage) {
         sendMessage.setText(DeliverymanText.login);

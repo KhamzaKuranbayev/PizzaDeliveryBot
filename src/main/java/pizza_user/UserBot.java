@@ -10,8 +10,10 @@ import models.user.User;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -45,7 +47,6 @@ public class UserBot extends TelegramLongPollingBot {
     public static ConcurrentHashMap<String, String> tempUserRegData = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<String, String> tempProductData = new ConcurrentHashMap<>();
 
-    public static ManagerBot managerBot = new ManagerBot();
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -93,17 +94,7 @@ public class UserBot extends TelegramLongPollingBot {
                     break;
                 case "\uD83D\uDCDD Buyurtma berish":
 
-                    sendOrder(sendMessage);
-
-                    SendMessage sendMessage1 = new SendMessage()
-                            .setChatId(update.getMessage().getChatId())
-                            .setText("New Order from " + update.getMessage().getChat().getUserName());
-                    try {
-                        managerBot.execute(sendMessage1);
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
-
+                    sendOrder(sendMessage, update);
                     break;
                 case "\uD83E\uDDFA Xarid savatchasiga qo'shish":
 
@@ -185,11 +176,44 @@ public class UserBot extends TelegramLongPollingBot {
 
     }
 
-    private void sendOrder(SendMessage sendMessage) {
+    private void sendOrder(SendMessage sendMessage, Update update) {
 
         List<Product> productList = getProductsFromFile(sendMessage.getChatId());
 
         ManagerBot.orders.put(ManagerBot.orderListIndex++, new Order(ManagerBot.OrderID++, productList, LocalDateTime.now(), sendMessage.getChatId(), "", Status.NEW));
+
+        ManagerBot managerBot = new ManagerBot();
+
+        try {
+            managerBot.execute(setInlineButtonNewOrder(216179264, sendMessage.getChatId(), "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi "));
+            managerBot.execute(setInlineButtonNewOrder(1326662257, sendMessage.getChatId(), "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
+            managerBot.execute(setInlineButtonNewOrder(805244933, sendMessage.getChatId(), "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
+            managerBot.execute(setInlineButtonNewOrder(479241658, sendMessage.getChatId(), "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private SendMessage setInlineButtonNewOrder(long managerChatID, String userChatId, String text) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+        InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
+
+        inlineKeyboardButton1.setText("Buyurtmani Ko'rish");
+        inlineKeyboardButton1.setCallbackData("receiveOrderBtn" + ManagerBot.OrderID);
+
+        List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
+
+        keyboardButtonsRow.add(inlineKeyboardButton1);
+
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(keyboardButtonsRow);
+
+        inlineKeyboardMarkup.setKeyboard(rowList);
+
+        return new SendMessage().setChatId(managerChatID).setText(text).setReplyMarkup(inlineKeyboardMarkup);
     }
 
 
