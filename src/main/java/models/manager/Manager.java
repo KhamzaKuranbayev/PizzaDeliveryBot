@@ -2,14 +2,34 @@ package models.manager;
 
 public class Manager {
 
+    private String managerChatId;
     private String firstname;
     private String lastname;
+    private String telegram_username;
     private String password;
 
-    public Manager(String firstname, String lastname, String password) {
+    public Manager(String managerChatId, String firstname, String lastname, String telegram_username, String password) {
+        this.managerChatId = managerChatId;
         this.firstname = firstname;
         this.lastname = lastname;
+        this.telegram_username = telegram_username;
         this.password = password;
+    }
+
+    public String getManagerChatId() {
+        return managerChatId;
+    }
+
+    public void setManagerChatId(String managerChatId) {
+        this.managerChatId = managerChatId;
+    }
+
+    public String getTelegram_username() {
+        return telegram_username;
+    }
+
+    public void setTelegram_username(String telegram_username) {
+        this.telegram_username = telegram_username;
     }
 
     public String getFirstname() {

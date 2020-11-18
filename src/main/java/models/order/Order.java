@@ -5,17 +5,17 @@ import java.util.List;
 
 public class Order {
 
-    public String orderId;
+    public long orderId;
     public List<Product> products;
     private LocalDateTime date; // buyurtma jo'natilgan sana va vaqti
 
-    private long user_chat_id;
-    private long manager_chat_id;
+    private String user_chat_id;
+    private String manager_chat_id;
 
     private Status status;
 
-    public Order(String orderId, List<Product> products,
-                 LocalDateTime date, double cost, long user_chat_id, long manager_chat_id, Status status) {
+    public Order(long orderId, List<Product> products,
+                 LocalDateTime date, String user_chat_id, String manager_chat_id, Status status) {
         this.orderId = orderId;
         this.products = products;
         this.date = date;
@@ -24,11 +24,11 @@ public class Order {
         this.status = status;
     }
 
-    public String getOrderId() {
+    public long getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(String orderId) {
+    public void setOrderId(long orderId) {
         this.orderId = orderId;
     }
 
@@ -59,19 +59,19 @@ public class Order {
         return cost;
     }
 
-    public long getUser_chat_id() {
+    public String getUser_chat_id() {
         return user_chat_id;
     }
 
-    public void setUser_chat_id(long user_chat_id) {
+    public void setUser_chat_id(String user_chat_id) {
         this.user_chat_id = user_chat_id;
     }
 
-    public long getManager_chat_id() {
+    public String getManager_chat_id() {
         return manager_chat_id;
     }
 
-    public void setManager_chat_id(long manager_chat_id) {
+    public void setManager_chat_id(String manager_chat_id) {
         this.manager_chat_id = manager_chat_id;
     }
 

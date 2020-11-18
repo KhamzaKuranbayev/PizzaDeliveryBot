@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DeliverymanBot extends TelegramLongPollingBot {
 
@@ -19,10 +20,10 @@ public class DeliverymanBot extends TelegramLongPollingBot {
 
     public static List<Deliveryman> deliverymanList = new ArrayList<>();
 
-    private static boolean onTimeUsername = false;
-    private static boolean onTimePassword = false;
+    private static ConcurrentHashMap<Long, Boolean> onTimeUsername = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<Long, Boolean> onTimePassword = new ConcurrentHashMap<>();
 
-    public static Map<String, String> temp = new HashMap<>();
+    private static ConcurrentHashMap<String, String> temp = new ConcurrentHashMap<>();
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -35,18 +36,26 @@ public class DeliverymanBot extends TelegramLongPollingBot {
                     printLogin(sendMessage);
                     break;
                 default:
-                    if (onTimeUsername) {
+                    if (onTimeUsername.get(Long.valueOf(sendMessage.getChatId()))) {
                         if (checkUsername(update.getMessage().getText())) {
                             temp.put("username", update.getMessage().getText());
-                            onTimeUsername = false;
+                            if (onTimeUsername.get(Long.valueOf(sendMessage.getChatId())) == null) {
+                                onTimeUsername.put(Long.valueOf(sendMessage.getChatId()), false);
+                            } else {
+                                onTimeUsername.replace(Long.valueOf(sendMessage.getChatId()), false);
+                            }
                             printPassword(sendMessage);
                         } else {
                             printLogin(sendMessage);
                         }
-                    } else if (onTimePassword) {
+                    } else if (onTimePassword.get(Long.valueOf(sendMessage.getChatId()))) {
                         if (checkPassword(update.getMessage().getText())) {
                             temp.put("password", update.getMessage().getText());
-                            onTimePassword = false;
+                            if (onTimePassword.get(Long.valueOf(sendMessage.getChatId())) == null) {
+                                onTimePassword.put(Long.valueOf(sendMessage.getChatId()), false);
+                            } else {
+                                onTimePassword.replace(Long.valueOf(sendMessage.getChatId()), false);
+                            }
 
                         } else {
                             printPassword(sendMessage);
@@ -60,7 +69,12 @@ public class DeliverymanBot extends TelegramLongPollingBot {
         sendMessage.setText(DeliverymanText.login);
         try {
             execute(sendMessage);
-            onTimeUsername = true;
+            if (onTimeUsername.get(Long.valueOf(sendMessage.getChatId())) == null) {
+                onTimeUsername.put(Long.valueOf(sendMessage.getChatId()), true);
+            } else {
+                onTimeUsername.replace(Long.valueOf(sendMessage.getChatId()), true);
+            }
+
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -70,7 +84,11 @@ public class DeliverymanBot extends TelegramLongPollingBot {
         sendMessage.setText(DeliverymanText.password);
         try {
             execute(sendMessage);
-            onTimePassword = true;
+            if (onTimePassword.get(Long.valueOf(sendMessage.getChatId())) == null) {
+                onTimePassword.put(Long.valueOf(sendMessage.getChatId()), true);
+            } else {
+                onTimePassword.replace(Long.valueOf(sendMessage.getChatId()), true);
+            }
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

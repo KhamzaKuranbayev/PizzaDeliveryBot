@@ -1,9 +1,13 @@
 package pizza_manager;
 
+import message.DeliverymanText;
 import models.manager.Manager;
 import models.order.Order;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import pizza_user.UserBot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,20 +20,114 @@ public class ManagerBot extends TelegramLongPollingBot {
     public static List<Manager> managers = new ArrayList<>();
 
     public static long OrderID = 1;
+    public static long orderListIndex = 0;
 
     public static ConcurrentHashMap<Long, Order> orders = new ConcurrentHashMap<>();
 
+    private static ConcurrentHashMap<Long, Boolean> onTimeUsername = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<Long, Boolean> onTimePassword = new ConcurrentHashMap<>();
+
+    private static ConcurrentHashMap<String, String> temp = new ConcurrentHashMap<>();
 
     @Override
     public void onUpdateReceived(Update update) {
+        String chat_id = String.valueOf(update.getMessage().getChatId());
+        SendMessage sendMessage = new SendMessage().setChatId(chat_id);
 
+        if (update.hasMessage()) {
+            switch (update.getMessage().getText()) {
+                case UserBot.START:
+                    printLogin(sendMessage);
+                    break;
+
+
+
+                default:
+                    if (onTimeUsername.get(Long.valueOf(sendMessage.getChatId()))) {
+                        if (checkUsername(update.getMessage().getText())) {
+                            temp.put("username", update.getMessage().getText());
+                            if (onTimeUsername.get(Long.valueOf(sendMessage.getChatId())) == null) {
+                                onTimeUsername.put(Long.valueOf(sendMessage.getChatId()), false);
+                            } else {
+                                onTimeUsername.replace(Long.valueOf(sendMessage.getChatId()), false);
+                            }
+                            printPassword(sendMessage);
+                        } else {
+                            printLogin(sendMessage);
+                        }
+                    } else if (onTimePassword.get(Long.valueOf(sendMessage.getChatId()))) {
+                        if (checkPassword(update.getMessage().getText())) {
+                            temp.put("password", update.getMessage().getText());
+                            if (onTimePassword.get(Long.valueOf(sendMessage.getChatId())) == null) {
+                                onTimePassword.put(Long.valueOf(sendMessage.getChatId()), false);
+                            } else {
+                                onTimePassword.replace(Long.valueOf(sendMessage.getChatId()), false);
+                            }
+
+                        } else {
+                            printPassword(sendMessage);
+                        }
+                    }
+            }
+        }
 
     }
 
+    private void printLogin(SendMessage sendMessage) {
+        sendMessage.setText(DeliverymanText.login);
+        try {
+            execute(sendMessage);
+            if (onTimeUsername.get(Long.valueOf(sendMessage.getChatId())) == null) {
+                onTimeUsername.put(Long.valueOf(sendMessage.getChatId()), true);
+            } else {
+                onTimeUsername.replace(Long.valueOf(sendMessage.getChatId()), true);
+            }
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void printPassword(SendMessage sendMessage) {
+        sendMessage.setText(DeliverymanText.password);
+        try {
+            execute(sendMessage);
+            if (onTimePassword.get(Long.valueOf(sendMessage.getChatId())) == null) {
+                onTimePassword.put(Long.valueOf(sendMessage.getChatId()), true);
+            } else {
+                onTimePassword.replace(Long.valueOf(sendMessage.getChatId()), true);
+            }
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean checkUsername(String username) {
+        for (Manager manager : managers) {
+            if (manager != null) {
+                if (manager.getTelegram_username().equals(username)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean checkPassword(String password) {
+        for (Manager manager : managers) {
+            if (manager != null) {
+                if (manager.getPassword().equals(password)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public static void setManagers() {
-        managers.add(new Manager("Jamshid", "Isroilov", "1234"));
-        managers.add(new Manager("Elyorxo'ja", "Asadullayev", "4534"));
-        managers.add(new Manager("Xondamir", "Alijonov", "6789"));
+        managers.add(new Manager("216179264", "Khamza", "Kuranbayev", "@khamzakuranbayev", "123456"));
+        managers.add(new Manager("1326662257", "Kamol", "Narkulov", "@k_narkulov", "123456"));
+        managers.add(new Manager("805244933", "Zuhra", "Nazarova", "@z_nazarova", "123456"));
+        managers.add(new Manager("479241658", "Diyor", "Xolmuradov", "@Supremegoth", "123456"));
     }
 
     @Override
