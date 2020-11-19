@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DeliverymanBot extends TelegramLongPollingBot implements Auth {
 
-    private static final String TOKEN = "1424821558:AAFRkP0zc5oes10EyZ4OcSOxLp2Lb5dawTM";
+    private static final String TOKEN = "1424821558:AAEIn4VewsMQNKSC8GPHYzTzx3XEYZRbDIE";
 
     public static List<Deliveryman> deliverymanList = new ArrayList<>();
 

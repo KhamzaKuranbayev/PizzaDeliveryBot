@@ -196,9 +196,9 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
                             try {
                                 DeliverymanBot deliverymanBot = new DeliverymanBot();
 
-                                deliverymanBot.execute(setInlineButtonNewOrderForDeliveryman(1326662257, "Manager: @" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
-                                deliverymanBot.execute(setInlineButtonNewOrderForDeliveryman(216179264, "Manager: @" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi "));
-                                deliverymanBot.execute(setInlineButtonNewOrderForDeliveryman(162035045, "Manager: @" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi "));
+                                //deliverymanBot.execute(setInlineButtonNewOrderForDeliveryman(1326662257, "Manager: @" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
+                                deliverymanBot.execute(setInlineButtonNewOrderForDeliveryman(216179264, "Manager: @" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi ", orderId));
+                                //deliverymanBot.execute(setInlineButtonNewOrderForDeliveryman(162035045, "Manager: @" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi "));
                             } catch (TelegramApiException e) {
                                 e.printStackTrace();
                             }
@@ -213,13 +213,13 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
 
     }
 
-    private SendMessage setInlineButtonNewOrderForDeliveryman(long deliverymanChatID, String text) {
+    private SendMessage setInlineButtonNewOrderForDeliveryman(long deliverymanChatID, String text, long orderId) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
         InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
 
         inlineKeyboardButton1.setText("Buyurtmani Qabul Qilish");
-        inlineKeyboardButton1.setCallbackData("receiveOrderBtn" + ManagerBot.orderListIndex);
+        inlineKeyboardButton1.setCallbackData("receiveOrderBtnDelivery" + orderId);
 
         List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
 
