@@ -65,9 +65,9 @@ public class DeliverymanBot extends TelegramLongPollingBot implements Auth {
     }
 
     public static void setDeliveryman() {
-        deliverymanList.add(new Deliveryman("Shokir", "Jumaniyazov", "@Shokirbek01", "123456"));
-        deliverymanList.add(new Deliveryman("Khamza", "Kuranbayev", "@khamzakuranbayev", "123456"));
-        deliverymanList.add(new Deliveryman("Kamol", "Narkulov", "@k_narkulov", "123456"));
+        deliverymanList.add(new Deliveryman("162035045","Shokir", "Jumaniyazov", "@Shokirbek01", "123456"));
+        deliverymanList.add(new Deliveryman("216179264", "Khamza", "Kuranbayev", "@khamzakuranbayev", "123456"));
+        deliverymanList.add(new Deliveryman("1326662257", "Kamol", "Narkulov", "@k_narkulov", "123456"));
     }
 
     @Override

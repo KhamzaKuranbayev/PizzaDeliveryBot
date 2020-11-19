@@ -21,6 +21,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import pizza_deliveryman.DeliverymanBot;
 import pizza_user.UserBot;
 
 import java.io.File;
@@ -62,7 +63,7 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
                     printLogin(sendMessage);
                     break;
                 case "\uD83D\uDCE9 Mening buyurtmalarim":
-                    viewReceivedOrderList(sendMessage);
+                    viewReceivedOrderList(sendMessage, update);
 
                     break;
 
@@ -184,10 +185,52 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
                         }
                     }
                 });
+            } else if(call_data.contains("sendToDelivery")) {
+                long orderId = Long.parseLong(call_data.substring(call_data.indexOf("y") + 1));
+
+                orders.forEach((aLong, order) -> {
+                    if(order != null) {
+                        if (order.getOrderId() == orderId) {
+                            order.setStatus(Status.READY);
+
+                            try {
+                                DeliverymanBot deliverymanBot = new DeliverymanBot();
+
+                                deliverymanBot.execute(setInlineButtonNewOrderForDeliveryman(1326662257, "Manager: @" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
+                                deliverymanBot.execute(setInlineButtonNewOrderForDeliveryman(216179264, "Manager: @" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi "));
+                                deliverymanBot.execute(setInlineButtonNewOrderForDeliveryman(162035045, "Manager: @" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi "));
+                            } catch (TelegramApiException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }
+                });
+
             }
 
         }
 
+    }
+
+    private SendMessage setInlineButtonNewOrderForDeliveryman(long deliverymanChatID, String text) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+        InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
+
+        inlineKeyboardButton1.setText("Buyurtmani Qabul Qilish");
+        inlineKeyboardButton1.setCallbackData("receiveOrderBtn" + ManagerBot.orderListIndex);
+
+        List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
+
+        keyboardButtonsRow.add(inlineKeyboardButton1);
+
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(keyboardButtonsRow);
+
+        inlineKeyboardMarkup.setKeyboard(rowList);
+
+        return new SendMessage().setChatId(deliverymanChatID).setText(text).setReplyMarkup(inlineKeyboardMarkup);
     }
 
     private SendMessage setInlineButtonNewOrder(String managerChatID, String text, Long orderListIndex) {
@@ -287,7 +330,7 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
 
     }
 
-    public void viewReceivedOrderList(SendMessage sendMessage) {
+    public void viewReceivedOrderList(SendMessage sendMessage, Update update) {
 
         orders.forEach((index, order) -> {
             if (order != null) {
@@ -309,13 +352,17 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
                         }
-                    } else {
+                    } else if(order.getStatus().equals(Status.PROCESS)) {
+
                         try {
                             execute(sendPizzaForDelivery(sendMessage, order.getOrderId(), answer));
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
                         }
                     }
+
+
+
 
                 }
 

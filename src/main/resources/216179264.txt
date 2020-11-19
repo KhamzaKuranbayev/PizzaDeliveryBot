@@ -1,7 +1,0 @@
-1 1 4200.0 Capricciosa_Pizza 
-2 2 49000.0 Hawalian_Pizza 
-5 4 54000.0 Marinara_Pizza 
-2 4 54000.0 Marinara_Pizza 
-6 3 45000.0 Margherita_Pizza 
-1 4 54000.0 Marinara_Pizza 
-5 2 49000.0 Hawalian_Pizza 

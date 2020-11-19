@@ -20,6 +20,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pizza_manager.ManagerBot;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -83,18 +86,36 @@ public class UserBot extends TelegramLongPollingBot {
                     break;
                 case "\uD83D\uDECD Buyurtma savatchasi":
 
-                    showOrderCart(sendMessage);
-
-                    try {
-                        orderCartButtons(sendMessage);
-                        execute(sendMessage);
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
+                    File file = new File("src/main/resources/" + sendMessage.getChatId() + ".txt");
+                    if (file.length() != 0) {
+                        showOrderCart(sendMessage, file);
+                        try {
+                            orderCartButtons(sendMessage);
+                            execute(sendMessage);
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        sendMessage.setText("Buyurtma Savatchasi Bo'sh!");
+                        try {
+                            execute(sendMessage);
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
                     }
                     break;
                 case "\uD83D\uDCDD Buyurtma berish":
-
-                    sendOrder(sendMessage, update);
+                    file = new File("src/main/resources/" + sendMessage.getChatId() + ".txt");
+                    if (file.length() != 0) {
+                        sendOrder(sendMessage, update, file);
+                    } else {
+                        sendMessage.setText("Siz buyurtma berib bo'ldingiz!");
+                        try {
+                            execute(sendMessage);
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     break;
                 case "\uD83E\uDDFA Xarid savatchasiga qo'shish":
 
@@ -176,22 +197,20 @@ public class UserBot extends TelegramLongPollingBot {
 
     }
 
-    private void sendOrder(SendMessage sendMessage, Update update) {
+    private void sendOrder(SendMessage sendMessage, Update update, File file) {
 
         List<Product> productList = getProductsFromFile(sendMessage.getChatId());
 
         ManagerBot.orders.put(ManagerBot.orderListIndex++, new Order(ManagerBot.OrderID++, productList, LocalDateTime.now(), sendMessage.getChatId(), "", Status.NEW));
 
-        File file = new File("src/main/resources/" + update.getMessage().getChatId() + "/txt");
-        if (file.exists()) {
-            try {
-                clearTheFile(file);
-                file.deleteOnExit();
-                file.delete();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
+        Path path = file.toPath();
+
+        try {
+            Files.newBufferedWriter(path, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.newInputStream(path, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         ManagerBot managerBot = new ManagerBot();
@@ -273,9 +292,7 @@ public class UserBot extends TelegramLongPollingBot {
             }
         }
 
-        try {
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, true));
-
+        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, true))) {
             for (Map.Entry<String, String> entry : tempProductData.entrySet()) {
                 bufferedWriter.write(entry.getValue() + " ");
             }
@@ -287,14 +304,12 @@ public class UserBot extends TelegramLongPollingBot {
         }
     }
 
-    private void showOrderCart(SendMessage sendMessage) {
+    private void showOrderCart(SendMessage sendMessage, File file) {
 
-        File file = new File("src/main/resources/" + sendMessage.getChatId() + ".txt");
 
         if (file.exists()) {
-            try {
+            try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
                 StringBuilder answer = new StringBuilder();
-                BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
                 String line;
                 double sum = 0;
                 int index = 1;
