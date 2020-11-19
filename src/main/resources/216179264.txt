@@ -1,2 +1,2 @@
-2 1 4200.0 Capricciosa_Pizza 
-5 3 45000.0 Margherita_Pizza 
+2 3 45000.0 Margherita_Pizza 
+4 5 66000.0 Mexican_Pizza 

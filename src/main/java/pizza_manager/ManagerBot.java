@@ -1,5 +1,6 @@
 package pizza_manager;
 
+import impl.Auth;
 import message.DeliverymanText;
 import message.ManagerText;
 import message.UserText;
@@ -7,13 +8,12 @@ import models.manager.Manager;
 import models.order.Order;
 import models.order.Product;
 import models.order.Status;
-import org.glassfish.jersey.client.internal.routing.AbortedRequestMediaTypeDeterminer;
+import models.user.User;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -32,9 +32,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.StrictMath.toIntExact;
 
-public class ManagerBot extends TelegramLongPollingBot {
+public class ManagerBot extends TelegramLongPollingBot implements Auth {
 
-    private static final String TOKEN = "1498903995:AAE9I91JlE65FoOVQBpr1agZqsTS4XTPJRE";
+    private static final String TOKEN = "1498903995:AAFyvsh5fHbcCTLI_5tYt8WT6ofDp3GcaEo";
 
     public static List<Manager> managers = new ArrayList<>();
 
@@ -99,10 +99,20 @@ public class ManagerBot extends TelegramLongPollingBot {
                                 }
                             });
 
+                            String username = "";
+                            long chatID = Long.parseLong(chat_id);
+                            for (User user : UserBot.users) {
+                                if (user != null) {
+                                    if (user.getChat_id() == chatID) {
+                                        username = user.getUsername();
+                                        break;
+                                    }
+                                }
+                            }
                             for (Long orderHashMapIndex : orderHashMapIndexes) {
                                 if (orderHashMapIndex != null) {
                                     try {
-                                        execute(setInlineButtonNewOrder(chat_id, "test", orderHashMapIndex));
+                                        execute(setInlineButtonNewOrder(chat_id, "@" + username + " dan yangi buyurtma keldi", orderHashMapIndex));
                                     } catch (TelegramApiException e) {
                                         e.printStackTrace();
                                     }
@@ -122,7 +132,10 @@ public class ManagerBot extends TelegramLongPollingBot {
             if (call_data.contains("receiveOrderBtn")) {
                 long index = Long.parseLong(call_data.substring(call_data.indexOf("n") + 1));
 
-                Order order = orders.get(index - 1);
+                if(index != 0) {
+                    index -= 1;
+                }
+                Order order = orders.get(index);
                 if (order.getStatus() != Status.RECEIVED) {
                     order.setStatus(Status.RECEIVED);
                     order.setManager_chat_id(String.valueOf(chat_id));
@@ -160,10 +173,6 @@ public class ManagerBot extends TelegramLongPollingBot {
 
     }
 
-
-
-
-
     private SendMessage setInlineButtonNewOrder(String managerChatID, String text, Long orderListIndex) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
@@ -182,9 +191,6 @@ public class ManagerBot extends TelegramLongPollingBot {
         inlineKeyboardMarkup.setKeyboard(rowList);
 
         return new SendMessage().setChatId(managerChatID).setText(text).setReplyMarkup(inlineKeyboardMarkup);
-
-
-
     }
 
     public static void clearTheFile(File file) throws IOException {
@@ -195,7 +201,8 @@ public class ManagerBot extends TelegramLongPollingBot {
         fwOb.close();
     }
 
-    private void printLogin(SendMessage sendMessage) {
+    @Override
+    public void printLogin(SendMessage sendMessage) {
         sendMessage.setText(DeliverymanText.login);
         try {
             execute(sendMessage);
@@ -209,7 +216,8 @@ public class ManagerBot extends TelegramLongPollingBot {
         }
     }
 
-    private void printPassword(SendMessage sendMessage) {
+    @Override
+    public void printPassword(SendMessage sendMessage) {
         sendMessage.setText(DeliverymanText.password);
         try {
             execute(sendMessage);
@@ -262,6 +270,7 @@ public class ManagerBot extends TelegramLongPollingBot {
 
 
 
+    @Override
     public boolean checkUsername(String username) {
         for (Manager manager : managers) {
             if (manager != null) {
@@ -273,6 +282,7 @@ public class ManagerBot extends TelegramLongPollingBot {
         return false;
     }
 
+    @Override
     public boolean checkPassword(String password) {
         for (Manager manager : managers) {
             if (manager != null) {

@@ -1,5 +1,6 @@
 package pizza_deliveryman;
 
+import impl.Auth;
 import models.deliveryman.Deliveryman;
 import message.DeliverymanText;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -7,14 +8,12 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pizza_user.UserBot;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DeliverymanBot extends TelegramLongPollingBot {
+
+public class DeliverymanBot extends TelegramLongPollingBot implements Auth {
 
     private static final String TOKEN = "1424821558:AAFRkP0zc5oes10EyZ4OcSOxLp2Lb5dawTM";
 
@@ -65,57 +64,6 @@ public class DeliverymanBot extends TelegramLongPollingBot {
         }
     }
 
-    private void printLogin(SendMessage sendMessage) {
-        sendMessage.setText(DeliverymanText.login);
-        try {
-            execute(sendMessage);
-            if (onTimeUsername.get(Long.valueOf(sendMessage.getChatId())) == null) {
-                onTimeUsername.put(Long.valueOf(sendMessage.getChatId()), true);
-            } else {
-                onTimeUsername.replace(Long.valueOf(sendMessage.getChatId()), true);
-            }
-
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void printPassword(SendMessage sendMessage) {
-        sendMessage.setText(DeliverymanText.password);
-        try {
-            execute(sendMessage);
-            if (onTimePassword.get(Long.valueOf(sendMessage.getChatId())) == null) {
-                onTimePassword.put(Long.valueOf(sendMessage.getChatId()), true);
-            } else {
-                onTimePassword.replace(Long.valueOf(sendMessage.getChatId()), true);
-            }
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public boolean checkUsername(String username) {
-        for (Deliveryman deliveryman : deliverymanList) {
-            if (deliveryman != null) {
-                if (deliveryman.getTelegram_username().equals(username)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public boolean checkPassword(String password) {
-        for (Deliveryman deliveryman : deliverymanList) {
-            if (deliveryman != null) {
-                if (deliveryman.getPassword().equals(password)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     public static void setDeliveryman() {
         deliverymanList.add(new Deliveryman("Shokir", "Jumaniyazov", "@Shokirbek01", "123456"));
         deliverymanList.add(new Deliveryman("Khamza", "Kuranbayev", "@khamzakuranbayev", "123456"));
@@ -130,5 +78,60 @@ public class DeliverymanBot extends TelegramLongPollingBot {
     @Override
     public String getBotToken() {
         return TOKEN;
+    }
+
+    @Override
+    public void printLogin(SendMessage sendMessage) {
+        sendMessage.setText(DeliverymanText.login);
+        try {
+            execute(sendMessage);
+            if (onTimeUsername.get(Long.valueOf(sendMessage.getChatId())) == null) {
+                onTimeUsername.put(Long.valueOf(sendMessage.getChatId()), true);
+            } else {
+                onTimeUsername.replace(Long.valueOf(sendMessage.getChatId()), true);
+            }
+
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void printPassword(SendMessage sendMessage) {
+        sendMessage.setText(DeliverymanText.password);
+        try {
+            execute(sendMessage);
+            if (onTimePassword.get(Long.valueOf(sendMessage.getChatId())) == null) {
+                onTimePassword.put(Long.valueOf(sendMessage.getChatId()), true);
+            } else {
+                onTimePassword.replace(Long.valueOf(sendMessage.getChatId()), true);
+            }
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean checkUsername(String username) {
+        for (Deliveryman deliveryman : deliverymanList) {
+            if (deliveryman != null) {
+                if (deliveryman.getTelegram_username().equals(username)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean checkPassword(String password) {
+        for (Deliveryman deliveryman : deliverymanList) {
+            if (deliveryman != null) {
+                if (deliveryman.getPassword().equals(password)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

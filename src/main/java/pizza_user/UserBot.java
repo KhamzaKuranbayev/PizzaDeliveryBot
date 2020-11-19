@@ -26,8 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class UserBot extends TelegramLongPollingBot {
 
-    private static final String TOKEN =
-            "1318778812:AAG2k56z-rqnjPZUKVxzThzrlOmA9myGl_g";
+    private static final String TOKEN = "1318778812:AAFNModGG8WGk-9TXOiMwHpd_i4hJ4VD5vo";
 
     public static final String START = "/start";
 
@@ -152,7 +151,7 @@ public class UserBot extends TelegramLongPollingBot {
                         tempUserRegData.put("phone_number", update.getMessage().getText());
 
                         Address address = Address.valueOf(tempUserRegData.get("address"));
-                        users.add(new User(update.getMessage().getChatId(), tempUserRegData.get("username"), tempUserRegData.get("phone_number"), address, LANGUAGE, Double.parseDouble(tempUserRegData.get("balance"))));
+                        users.add(new User(update.getMessage().getChatId(), update.getMessage().getChat().getUserName(), tempUserRegData.get("username"), tempUserRegData.get("phone_number"), address, LANGUAGE, Double.parseDouble(tempUserRegData.get("balance"))));
                         tempUserRegData.clear();
                         afterRegister(sendMessage);
                         onTimePhoneNumber.replace(update.getMessage().getChatId(), false);
@@ -215,7 +214,6 @@ public class UserBot extends TelegramLongPollingBot {
 
         return new SendMessage().setChatId(managerChatID).setText(text).setReplyMarkup(inlineKeyboardMarkup);
     }
-
 
     private List<Product> getProductsFromFile(String chatId) {
 
