@@ -129,7 +129,7 @@ public class UserBot extends TelegramLongPollingBot {
                     showProductList(sendMessage);
                     break;
                 case "◀️ Orqaga qaytish":
-                    sendMessage.setText("Bosh Menyu qaytdi♻️");
+                    sendMessage.setText("Bosh Menyuga ♻️");
                     try {
                         setMainMenuButtons(sendMessage);
                         execute(sendMessage);
@@ -224,14 +224,6 @@ public class UserBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
 
-    }
-
-    public static void clearTheFile(File file) throws IOException {
-        FileWriter fwOb = new FileWriter(file, false);
-        PrintWriter pwOb = new PrintWriter(fwOb, false);
-        pwOb.flush();
-        pwOb.close();
-        fwOb.close();
     }
 
     private SendMessage setInlineButtonNewOrder(long managerChatID, String text) {

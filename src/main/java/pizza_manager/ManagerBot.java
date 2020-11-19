@@ -47,7 +47,6 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
 
     private static ConcurrentHashMap<Long, Boolean> onTimeUsername = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<Long, Boolean> onTimePassword = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<Long, Boolean> onTimeMainMenu = new ConcurrentHashMap<>();
 
     private static ConcurrentHashMap<String, String> temp = new ConcurrentHashMap<>();
 
@@ -64,9 +63,7 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
                     break;
                 case "\uD83D\uDCE9 Mening buyurtmalarim":
                     viewReceivedOrderList(sendMessage, update);
-
                     break;
-
                 default:
                     if (onTimeUsername.get(Long.valueOf(sendMessage.getChatId()))) {
                         if (checkUsername(update.getMessage().getText())) {
@@ -185,20 +182,21 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
                         }
                     }
                 });
-            } else if(call_data.contains("sendToDelivery")) {
+            } else if (call_data.contains("sendToDelivery")) {
                 long orderId = Long.parseLong(call_data.substring(call_data.indexOf("y") + 1));
 
                 orders.forEach((aLong, order) -> {
-                    if(order != null) {
+                    if (order != null) {
                         if (order.getOrderId() == orderId) {
                             order.setStatus(Status.READY);
 
                             try {
                                 DeliverymanBot deliverymanBot = new DeliverymanBot();
 
-                                //deliverymanBot.execute(setInlineButtonNewOrderForDeliveryman(1326662257, "Manager: @" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
+                                deliverymanBot.execute(setInlineButtonNewOrderForDeliveryman(1326662257, "Manager: @" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi", orderId));
                                 deliverymanBot.execute(setInlineButtonNewOrderForDeliveryman(216179264, "Manager: @" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi ", orderId));
-                                //deliverymanBot.execute(setInlineButtonNewOrderForDeliveryman(162035045, "Manager: @" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi "));
+                                deliverymanBot.execute(setInlineButtonNewOrderForDeliveryman(162035045, "Manager: @" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi ", orderId));
+
                             } catch (TelegramApiException e) {
                                 e.printStackTrace();
                             }
@@ -352,7 +350,7 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
                         }
-                    } else if(order.getStatus().equals(Status.PROCESS)) {
+                    } else if (order.getStatus().equals(Status.PROCESS)) {
 
                         try {
                             execute(sendPizzaForDelivery(sendMessage, order.getOrderId(), answer));
@@ -360,8 +358,6 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
                             e.printStackTrace();
                         }
                     }
-
-
 
 
                 }
