@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -60,13 +61,9 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
                 case UserBot.START:
                     printLogin(sendMessage);
                     break;
-                case "/orderSlash1":
-                    sendMessage.setText("1*-qor");
-                    try {
-                        execute(sendMessage);
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
+                case "\uD83D\uDCE9 Mening buyurtmalarim":
+                    viewReceivedOrderList(sendMessage);
+
                     break;
 
                 default:
@@ -118,6 +115,8 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
                                     }
                                 }
                             }
+                            viewMyOrdersButton(sendMessage);
+
                         } else {
                             printPassword(sendMessage);
                         }
@@ -132,7 +131,7 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
             if (call_data.contains("receiveOrderBtn")) {
                 long index = Long.parseLong(call_data.substring(call_data.indexOf("n") + 1));
 
-                if(index != 0) {
+                if (index != 0) {
                     index -= 1;
                 }
                 Order order = orders.get(index);
@@ -167,6 +166,24 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
                     }
                 }
 
+            } else if (call_data.contains("sendToCooking")) {
+
+                long orderId = Long.parseLong(call_data.substring(call_data.indexOf("g") + 1));
+
+                orders.forEach((aLong, order) -> {
+                    if (order != null) {
+                        if (order.getOrderId() == orderId) {
+                            order.setStatus(Status.PROCESS);
+                            UserBot userBot = new UserBot();
+                            SendMessage sendMessage = new SendMessage().setChatId(order.getUser_chat_id()).setText(Status.PROCESS.getUz());
+                            try {
+                                userBot.execute(sendMessage);
+                            } catch (TelegramApiException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
             }
 
         }
@@ -178,7 +195,7 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
 
         InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
 
-        inlineKeyboardButton1.setText("Buyurtmani Ko'rish");
+        inlineKeyboardButton1.setText("Buyurtmani Qabul Qilish");
         inlineKeyboardButton1.setCallbackData("receiveOrderBtn" + orderListIndex);
 
         List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
@@ -193,13 +210,6 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
         return new SendMessage().setChatId(managerChatID).setText(text).setReplyMarkup(inlineKeyboardMarkup);
     }
 
-    public static void clearTheFile(File file) throws IOException {
-        FileWriter fwOb = new FileWriter(file, false);
-        PrintWriter pwOb = new PrintWriter(fwOb, false);
-        pwOb.flush();
-        pwOb.close();
-        fwOb.close();
-    }
 
     @Override
     public void printLogin(SendMessage sendMessage) {
@@ -231,45 +241,6 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
         }
     }
 
-
-    public void chooseButton(SendMessage sendMessage) {
-        orders.forEach((index, order) -> {
-            if (order.getStatus() == Status.RECEIVED) {
-                order.getStatus().equals(Status.PROCESS);
-
-
-            }
-
-
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
-        replyKeyboardMarkup.setSelective(true);
-        replyKeyboardMarkup.setResizeKeyboard(true);
-        List<KeyboardRow> keyboardRowList = new ArrayList<>();
-        KeyboardRow keyboardRow1 = new KeyboardRow();
-        keyboardRow1.add(new KeyboardButton(ManagerText.chosetext()));
-        keyboardRowList.add(keyboardRow1);
-        replyKeyboardMarkup.setKeyboard(keyboardRowList);
-        sendMessage.setReplyMarkup(replyKeyboardMarkup);
-
-
-
-
-
-         UserBot userBot1=new UserBot() ;
-        SendMessage sendMessage1=new SendMessage().setChatId(order.orderId).setText(Status.PROCESS.getUz());
-
-            try {
-                 userBot1.execute(sendMessage1);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-
-        });
-
-    }
-
-
-
     @Override
     public boolean checkUsername(String username) {
         for (Manager manager : managers) {
@@ -292,6 +263,112 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth {
             }
         }
         return false;
+    }
+
+    public void viewMyOrdersButton(SendMessage sendMessage) {
+        sendMessage.setText("Qabul qilingan buyurtmalarni ko'rish uchun bosing");
+
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setResizeKeyboard(true);
+
+        List<KeyboardRow> keyboardRowList = new ArrayList<>();
+        KeyboardRow keyboardRow1 = new KeyboardRow();
+        keyboardRow1.add(new KeyboardButton("\uD83D\uDCE9 Mening buyurtmalarim"));
+        keyboardRowList.add(keyboardRow1);
+        replyKeyboardMarkup.setKeyboard(keyboardRowList);
+        sendMessage.setReplyMarkup(replyKeyboardMarkup);
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    public void viewReceivedOrderList(SendMessage sendMessage) {
+
+        orders.forEach((index, order) -> {
+            if (order != null) {
+
+                if (order.getManager_chat_id().equals(sendMessage.getChatId())) {
+                    String answer = "Buyurtma №: " + order.getOrderId() + " | Holati: " + order.getStatus();
+                    answer += "\n======================================\n";
+                    for (Product product : order.getProducts()) {
+                        if (product != null) {
+                            answer += "ID: " + product.getProductId() + ". " + product.getPizza().toString().toUpperCase() + " dan " + product.getUser_amount() + " ta\n";
+                        }
+                    }
+                    answer += "\n======================================\n";
+                    answer += "\n\n";
+
+                    if (order.getStatus().equals(Status.RECEIVED)) {
+                        try {
+                            execute(sendPizzaForCooking(sendMessage, order.getOrderId(), answer));
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        try {
+                            execute(sendPizzaForDelivery(sendMessage, order.getOrderId(), answer));
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
+
+                /*UserBot userBot1 = new UserBot();
+                SendMessage sendMessage1 = new SendMessage().setChatId(order.orderId).setText(Status.PROCESS.getUz());
+
+                try {
+                    userBot1.execute(sendMessage1);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }*/
+            }
+        });
+    }
+
+    private SendMessage sendPizzaForCooking(SendMessage sendMessage, Long orderID, String text) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+        InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
+
+        inlineKeyboardButton1.setText("\uD83D\uDCE3 Pishirishga jo'natish");
+        inlineKeyboardButton1.setCallbackData("sendToCooking" + orderID);
+
+        List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
+
+        keyboardButtonsRow.add(inlineKeyboardButton1);
+
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(keyboardButtonsRow);
+
+        inlineKeyboardMarkup.setKeyboard(rowList);
+
+        return new SendMessage().setChatId(sendMessage.getChatId()).setText(text).setReplyMarkup(inlineKeyboardMarkup);
+    }
+
+    private SendMessage sendPizzaForDelivery(SendMessage sendMessage, Long orderID, String text) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+        InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
+
+        inlineKeyboardButton1.setText("\uD83D\uDEF5 Yetkazib beruvchiga");
+        inlineKeyboardButton1.setCallbackData("sendToDelivery" + orderID);
+
+        List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
+
+        keyboardButtonsRow.add(inlineKeyboardButton1);
+
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(keyboardButtonsRow);
+
+        inlineKeyboardMarkup.setKeyboard(rowList);
+
+        return new SendMessage().setChatId(sendMessage.getChatId()).setText(text).setReplyMarkup(inlineKeyboardMarkup);
     }
 
     public static void setManagers() {

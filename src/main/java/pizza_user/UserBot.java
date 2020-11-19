@@ -182,6 +182,18 @@ public class UserBot extends TelegramLongPollingBot {
 
         ManagerBot.orders.put(ManagerBot.orderListIndex++, new Order(ManagerBot.OrderID++, productList, LocalDateTime.now(), sendMessage.getChatId(), "", Status.NEW));
 
+        File file = new File("src/main/resources/" + update.getMessage().getChatId() + "/txt");
+        if (file.exists()) {
+            try {
+                clearTheFile(file);
+                file.deleteOnExit();
+                file.delete();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
         ManagerBot managerBot = new ManagerBot();
 
         try {
@@ -195,12 +207,20 @@ public class UserBot extends TelegramLongPollingBot {
 
     }
 
+    public static void clearTheFile(File file) throws IOException {
+        FileWriter fwOb = new FileWriter(file, false);
+        PrintWriter pwOb = new PrintWriter(fwOb, false);
+        pwOb.flush();
+        pwOb.close();
+        fwOb.close();
+    }
+
     private SendMessage setInlineButtonNewOrder(long managerChatID, String text) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
         InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
 
-        inlineKeyboardButton1.setText("Buyurtmani Ko'rish");
+        inlineKeyboardButton1.setText("Buyurtmani Qabul Qilish");
         inlineKeyboardButton1.setCallbackData("receiveOrderBtn" + ManagerBot.orderListIndex);
 
         List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
@@ -561,55 +581,35 @@ public class UserBot extends TelegramLongPollingBot {
     }
 
     /*
-    *       Manager kirdi
-    *
-    *           My Orders bosdi
-    *
-    *           Pizza tayyorlash uchun buyurtmani tanlang
-    *          --------------------------------------------
-    *           Order ID    Name
-    *               1.      Pizza1   Status: Received
-    *               2.      Pizza2   Status: Received
-    *               3.      Pizza3   Status: Received
-    *               4.      Pizza4   Status: Received
-    *
-    *               2
-    *           Pizza2 tayyorlash uchun jo'natildi
-    *
-    *           My Orders
-    *
-    *           Pizza tayyorlash uchun buyurtmani tanlang
+     *       Manager kirdi
+     *
+     *           My Orders bosdi
+     *
+     *           Pizza tayyorlash uchun buyurtmani tanlang
+     *          --------------------------------------------
+     *           Order ID    Name
+     *               1.      Pizza1   Status: Received
+     *               2.      Pizza2   Status: Received
+     *               3.      Pizza3   Status: Received
+     *               4.      Pizza4   Status: Received
+     *
+     *               2
+     *           Pizza2 tayyorlash uchun jo'natildi
+     *
+     *           My Orders
+     *
+     *           Pizza tayyorlash uchun buyurtmani tanlang
      *          --------------------------------------------
      *           Order ID    Name
      *               1.      Pizza1   Status: Received
      *               2.      Pizza2   Status: Process
      *               3.      Pizza3   Status: Received
      *               4.      Pizza4   Status: Received
-    *
-    *           My Orders
-    *
-    *
-    * */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+     *
+     *           My Orders
+     *
+     *
+     * */
 
 
 }

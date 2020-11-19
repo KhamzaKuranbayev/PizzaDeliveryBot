@@ -1,18 +1,14 @@
 package message;
 
-import pizza_user.UserBot;
-
 import static pizza_manager.ManagerBot.orders;
 
 public class ManagerText {
 
-    public static String chosetext(){
+    /*public static String chooseText(){
         String answer="";
         if(orders==null){
             answer="Tanlash";
-
-
         }
         return answer;
-    }
+    }*/
 }
