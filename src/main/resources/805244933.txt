@@ -1,1 +1,3 @@
 3 4 54000.0 Marinara_Pizza 
+3 3 45000.0 Margherita_Pizza 
+2 2 49000.0 Hawalian_Pizza 

@@ -1,10 +1,13 @@
 package pizza_manager;
 
 import message.DeliverymanText;
+import message.ManagerText;
+import message.UserText;
 import models.manager.Manager;
 import models.order.Order;
 import models.order.Product;
 import models.order.Status;
+import org.glassfish.jersey.client.internal.routing.AbortedRequestMediaTypeDeterminer;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -12,7 +15,10 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pizza_user.UserBot;
 
@@ -28,7 +34,7 @@ import static java.lang.StrictMath.toIntExact;
 
 public class ManagerBot extends TelegramLongPollingBot {
 
-    private static final String TOKEN = "1498903995:AAFYP67JhTVGfL0Sizc6FQf9cpjOkZv_4g8";
+    private static final String TOKEN = "1498903995:AAE9I91JlE65FoOVQBpr1agZqsTS4XTPJRE";
 
     public static List<Manager> managers = new ArrayList<>();
 
@@ -154,6 +160,10 @@ public class ManagerBot extends TelegramLongPollingBot {
 
     }
 
+
+
+
+
     private SendMessage setInlineButtonNewOrder(String managerChatID, String text, Long orderListIndex) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
@@ -172,6 +182,9 @@ public class ManagerBot extends TelegramLongPollingBot {
         inlineKeyboardMarkup.setKeyboard(rowList);
 
         return new SendMessage().setChatId(managerChatID).setText(text).setReplyMarkup(inlineKeyboardMarkup);
+
+
+
     }
 
     public static void clearTheFile(File file) throws IOException {
@@ -209,6 +222,45 @@ public class ManagerBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
+
+
+    public void chooseButton(SendMessage sendMessage) {
+        orders.forEach((index, order) -> {
+            if (order.getStatus() == Status.RECEIVED) {
+                order.getStatus().equals(Status.PROCESS);
+
+
+            }
+
+
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setSelective(true);
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        List<KeyboardRow> keyboardRowList = new ArrayList<>();
+        KeyboardRow keyboardRow1 = new KeyboardRow();
+        keyboardRow1.add(new KeyboardButton(ManagerText.chosetext()));
+        keyboardRowList.add(keyboardRow1);
+        replyKeyboardMarkup.setKeyboard(keyboardRowList);
+        sendMessage.setReplyMarkup(replyKeyboardMarkup);
+
+
+
+
+
+         UserBot userBot1=new UserBot() ;
+        SendMessage sendMessage1=new SendMessage().setChatId(order.orderId).setText(Status.PROCESS.getUz());
+
+            try {
+                 userBot1.execute(sendMessage1);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+
+        });
+
+    }
+
+
 
     public boolean checkUsername(String username) {
         for (Manager manager : managers) {

@@ -26,7 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class UserBot extends TelegramLongPollingBot {
 
-    private static final String TOKEN = "1318778812:AAHz-TE8v-KWsq74WaS8NdN04_qXI0uATlk";
+    private static final String TOKEN =
+            "1318778812:AAG2k56z-rqnjPZUKVxzThzrlOmA9myGl_g";
 
     public static final String START = "/start";
 
