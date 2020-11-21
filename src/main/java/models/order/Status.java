@@ -2,11 +2,11 @@ package models.order;
 
 public enum Status {
 
-    NEW("YANGI", ""),
-    RECEIVED("QABUL QILINDI", ""),
-    PROCESS("TAYYORLANMOQDA", ""),
-    READY("TAYYOR", ""),
-    ON_THE_WAY("YO'LDA", ""),
+    NEW("Yangi Buyurtma", ""),
+    RECEIVED("BUYURTMANGIZ QABUL QILINDI \uD83D\uDCE5", ""),
+    PROCESS("BUYURTMANGIZ TAYYORLANMOQDA \uD83D\uDC69\u200D\uD83C\uDF73\uD83D\uDC68\u200D\uD83C\uDF73", ""),
+    READY("BUYURTMANGIZ TAYYOR \uD83D\uDCE6", ""),
+    ON_THE_WAY("BUYURTMANGIZ YO'LDA \uD83D\uDE97", ""),
     DELIVERED("YETKAZILDI", "");
 
     private String uz;

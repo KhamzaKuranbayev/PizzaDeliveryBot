@@ -191,10 +191,8 @@ public class UserBot extends TelegramLongPollingBot {
                         }
                         onTimeCountOrderProduct.replace(update.getMessage().getChatId(), false);
                     }
-
             }
         }
-
     }
 
     private void sendOrder(SendMessage sendMessage, Update update, File file) {
@@ -202,7 +200,6 @@ public class UserBot extends TelegramLongPollingBot {
         List<Product> productList = getProductsFromFile(sendMessage.getChatId());
 
         ManagerBot.orders.put(ManagerBot.orderListIndex++, new Order(ManagerBot.OrderID++, productList, LocalDateTime.now(), sendMessage.getChatId(), "", Status.NEW));
-
 
         Path path = file.toPath();
 
@@ -214,12 +211,14 @@ public class UserBot extends TelegramLongPollingBot {
         }
 
         ManagerBot managerBot = new ManagerBot();
+        sendMessage.setText("Buyurtma jo'natildi ✅. Tez orada buyurtmangiz qabul qilinadi.");
 
         try {
             managerBot.execute(setInlineButtonNewOrder(1326662257, "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
             managerBot.execute(setInlineButtonNewOrder(805244933, "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
             managerBot.execute(setInlineButtonNewOrder(479241658, "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi"));
             managerBot.execute(setInlineButtonNewOrder(216179264, "@" + update.getMessage().getChat().getUserName() + " dan yangi buyurtma keldi "));
+            execute(sendMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
