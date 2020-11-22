@@ -363,8 +363,6 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth, OrderOpe
                     answer += "\n\n";
 
                     if (order.getStatus().equals(Status.RECEIVED)) {
-                        /*SendMessage sendMessage1 = new SendMessage();
-                        sendMessage1.setText("Buyurtma oshpazga jo'natildi ✅");*/
                         try {
                             execute(sendPizzaForCooking(sendMessage, order.getOrderId(), answer));
 
@@ -372,7 +370,6 @@ public class ManagerBot extends TelegramLongPollingBot implements Auth, OrderOpe
                             e.printStackTrace();
                         }
                     } else if (order.getStatus().equals(Status.PROCESS)) {
-
                         try {
                             execute(sendPizzaForDelivery(sendMessage, order.getOrderId(), answer));
                         } catch (TelegramApiException e) {
